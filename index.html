@@ -204,7 +204,7 @@
       </div>
 
       <form id="chat-form" onsubmit="sendMessage(event)" class="flex items-center gap-2 relative">
-        <input type="text" id="chat-input" placeholder="اكتب رسالتك هنا..." class="flex-1 bg-slate-950/80 border border-slate-700/80 rounded-xl px-3.5 py-2.5 text-xs text-slate-100 focus:outline-none focus:border-amber-500/80 transition shadow-inner" required autocomplete="off" />
+        <input type="text" id="chat-input" placeholder="اكتب رسالتك هنا..." class="flex-1 bg-slate-950/80 border border-slate-700/80 rounded-xl px-3.5 py-2.5 text-xs text-slate-100 focus:outline-none focus:border-amber-500/80 transition shadow-inner" autocomplete="off" />
         <button type="submit" class="p-2.5 rounded-xl bg-gradient-to-r from-amber-500 to-orange-500 text-slate-950 hover:brightness-110 active:scale-95 transition font-extrabold shadow-md shrink-0 flex items-center justify-center">
           <i data-lucide="send" class="w-4 h-4"></i>
         </button>
@@ -232,13 +232,16 @@
     
     const recentChatsQuery = query(chatRef, orderByChild('timestamp'), limitToLast(50));
 
-    let currentUser = JSON.parse(localStorage.getItem('munqidh_user_data'));
+    let currentUser = null;
     let selectedImageBase64 = null;
     let typingTimeout = null;
+    let presenceInitialized = false; // لمنع التكرار في الآيفون
 
-    let soundSettings = JSON.parse(localStorage.getItem('munqidh_sound_settings')) || {
-       send: true, recv: true, reply: true
-    };
+    let soundSettings = { send: true, recv: true, reply: true };
+    try {
+        const storedSounds = localStorage.getItem('munqidh_sound_settings');
+        if (storedSounds) soundSettings = JSON.parse(storedSounds);
+    } catch(e) {}
 
     const loaderOverlay = document.getElementById('loading-overlay');
     const weakNetWarning = document.getElementById('weak-net-warning');
@@ -265,15 +268,44 @@
         }
     }
 
+    // --- حل مشكلة تسجيل الخروج للآيفون (BFCache و Storage Check) ---
+    function checkLoginStatus() {
+        try {
+            const storedData = localStorage.getItem('munqidh_user_data');
+            if (storedData) {
+                currentUser = JSON.parse(storedData);
+                document.getElementById('login-modal').classList.add('hidden');
+                setupPresence();
+            } else {
+                document.getElementById('login-modal').classList.remove('hidden');
+                hideLoader();
+            }
+        } catch (error) {
+            console.error("خطأ في قراءة البيانات:", error);
+            document.getElementById('login-modal').classList.remove('hidden');
+            hideLoader();
+        }
+    }
+
+    // التحقق عند تحميل الصفحة
+    checkLoginStatus();
+
+    // التحقق عند العودة للموقع (خاص بأجهزة آبل لتحديث الحالة)
+    window.addEventListener('pageshow', function(event) {
+        if (event.persisted) {
+            checkLoginStatus();
+        }
+    });
+
+    document.addEventListener('visibilitychange', function() {
+        if (!document.hidden) {
+            checkLoginStatus();
+        }
+    });
+    // -------------------------------------------------------------
+
     onValue(recentChatsQuery, (snapshot) => { hideLoader(); }, { onlyOnce: true });
     setTimeout(hideLoader, 20000); 
-
-    if (currentUser) {
-       document.getElementById('login-modal').classList.add('hidden');
-       setupPresence();
-    } else {
-       hideLoader();
-    }
 
     document.getElementById('snd-send-toggle').checked = soundSettings.send;
     document.getElementById('snd-recv-toggle').checked = soundSettings.recv;
@@ -285,7 +317,9 @@
           recv: document.getElementById('snd-recv-toggle').checked,
           reply: document.getElementById('snd-reply-toggle').checked
        };
-       localStorage.setItem('munqidh_sound_settings', JSON.stringify(soundSettings));
+       try {
+           localStorage.setItem('munqidh_sound_settings', JSON.stringify(soundSettings));
+       } catch(e) {}
     };
 
     window.openSettingsModal = function() {
@@ -307,7 +341,7 @@
           const updates = {};
           snapshot.forEach((childSnap) => {
              const msg = childSnap.val();
-             if(msg.userId === currentUser.id) {
+             if(msg.userId === currentUser?.id) {
                 updates[childSnap.key] = null;
              }
           });
@@ -319,7 +353,9 @@
 
     window.deleteAccount = function() {
        if(!confirm('هل تريد حقاً حذف حسابك من هذا الجهاز؟')) return;
-       localStorage.removeItem('munqidh_user_data');
+       try {
+           localStorage.removeItem('munqidh_user_data');
+       } catch(e) {}
        location.reload();
     };
 
@@ -362,6 +398,18 @@
        }
     };
 
+    function saveUserToStorageAndContinue(userObj) {
+       try {
+           localStorage.setItem('munqidh_user_data', JSON.stringify(userObj));
+           currentUser = userObj;
+           document.getElementById('login-modal').classList.add('hidden');
+           setupPresence();
+       } catch (error) {
+           alert("حدث خطأ في حفظ بيانات الدخول. الرجاء التأكد من عدم استخدام وضع (التصفح الخفي - Private Browsing) في الآيفون، أو اختيار صورة بحجم أصغر.");
+           console.error("Storage Error:", error);
+       }
+    }
+
     window.saveProfile = function() {
        let name = document.getElementById('reg-name').value.trim() || 'طالب مجتهد';
        let code = document.getElementById('reg-code').value.trim();
@@ -373,31 +421,30 @@
 
        let pic = selectedImageBase64 || defaultImages[role];
 
-       currentUser = {
+       let newUser = {
          id: 'user_' + Date.now() + Math.random().toString(36).substr(2,9),
          name: name,
          pic: pic,
          role: role
        };
 
-       localStorage.setItem('munqidh_user_data', JSON.stringify(currentUser));
-       document.getElementById('login-modal').classList.add('hidden');
-       setupPresence();
+       saveUserToStorageAndContinue(newUser);
     }
 
     window.skipProfile = function() {
-       currentUser = {
+       let newUser = {
          id: 'user_' + Date.now() + Math.random().toString(36).substr(2,9),
          name: 'طالب (زائر)',
          pic: defaultImages.user,
          role: 'user'
        };
-       localStorage.setItem('munqidh_user_data', JSON.stringify(currentUser));
-       document.getElementById('login-modal').classList.add('hidden');
-       setupPresence();
+       saveUserToStorageAndContinue(newUser);
     }
 
     function setupPresence() {
+      if (!currentUser || presenceInitialized) return;
+      presenceInitialized = true;
+
       const connectedRef = ref(db, ".info/connected");
       const myPresenceRef = ref(db, 'munqidh_presence/' + currentUser.id);
       const myTypingRef = ref(db, `munqidh_typing_status/${currentUser.id}`);
@@ -732,3 +779,4 @@
   </script>
 </body>
 </html>
+
