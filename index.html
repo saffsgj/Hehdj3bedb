@@ -25,6 +25,15 @@
     .msg-animate { animation: messageSlide 0.25s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
     .reply-swipe-anim { transition: transform 0.2s ease-out; }
     .fade-out { opacity: 0; transform: scale(0.9); transition: all 0.3s ease-out; }
+    
+    /* حركة النقاط الثلاث للكتابة */
+    .typing-dot { animation: typingBounce 1.4s infinite ease-in-out both; }
+    .typing-dot:nth-child(1) { animation-delay: -0.32s; }
+    .typing-dot:nth-child(2) { animation-delay: -0.16s; }
+    @keyframes typingBounce {
+      0%, 80%, 100% { transform: scale(0); opacity: 0.5; }
+      40% { transform: scale(1); opacity: 1; }
+    }
   </style>
 </head>
 <body class="bg-slate-950 text-slate-100 h-[100dvh] w-full overflow-hidden selection:bg-amber-500 selection:text-slate-950 flex items-center justify-center p-0 md:p-3">
@@ -113,7 +122,6 @@
 
   <main class="w-full max-w-sm md:max-w-md h-full md:h-[90dvh] flex flex-col bg-slate-900/90 md:rounded-3xl shadow-2xl border border-slate-800/80 relative overflow-hidden">
     
-    <!-- شاشة التحميل المطورة -->
     <div id="loading-overlay" class="absolute inset-0 z-40 bg-slate-950/95 backdrop-blur-sm flex flex-col items-center justify-center transition-opacity duration-500">
       <div class="w-12 h-12 border-4 border-slate-700 border-t-amber-500 rounded-full animate-spin mb-4 shadow-lg shadow-amber-500/20"></div>
       <h2 class="text-sm font-extrabold text-slate-100 mb-1">جاري فتح الملتقى...</h2>
@@ -153,17 +161,34 @@
     </header>
 
     <div id="chat-messages" class="flex-1 overflow-y-auto overflow-x-hidden p-3 space-y-3 custom-scrollbar text-sm relative scroll-smooth bg-slate-950/40">
-      <div class="bg-amber-500/10 border border-amber-500/20 rounded-2xl p-2.5 text-[11px] text-amber-300/90 text-center mx-auto w-11/12 shadow-sm">
+      <div class="bg-amber-500/10 border border-amber-500/20 rounded-2xl p-2.5 text-[11px] text-amber-300/90 text-center mx-auto w-11/12 shadow-sm mb-4">
         👋 مرحباً بك! (اسحب الرسالة للرد، اضغط على صورة أي شخص لعرض حسابه)
       </div>
     </div>
 
-    <div id="mention-badge" onclick="scrollToNextReply()" class="absolute bottom-16 right-4 z-30 hidden bg-amber-500 text-slate-950 p-2 rounded-full shadow-lg cursor-pointer hover:scale-110 transition">
+    <!-- ميزة: جاري الكتابة... (تم النقل إلى اليمين - right-4) -->
+    <div id="typing-indicator" class="absolute bottom-[72px] right-4 z-30 flex items-center gap-2 bg-slate-900/95 backdrop-blur-md border border-amber-500/30 rounded-full px-3 py-1.5 shadow-lg shadow-black/50 opacity-0 pointer-events-none transition-all duration-300 translate-y-4">
+      <div id="typing-avatars" class="flex -space-x-2 space-x-reverse">
+        <!-- الصور ستضاف هنا برمجياً -->
+      </div>
+      <div class="flex items-center gap-1.5">
+        <span id="typing-text" class="text-[10px] text-slate-200 font-bold mt-0.5"></span>
+        <div class="flex gap-[2px] items-center mt-1">
+          <div class="w-1 h-1 bg-amber-400 rounded-full typing-dot"></div>
+          <div class="w-1 h-1 bg-amber-400 rounded-full typing-dot"></div>
+          <div class="w-1 h-1 bg-amber-400 rounded-full typing-dot"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- زر المنشن (تم النقل إلى اليسار - left-4 حتى لا يتداخل مع جاري الكتابة) -->
+    <div id="mention-badge" onclick="scrollToNextReply()" class="absolute bottom-[72px] left-4 z-30 hidden bg-amber-500 text-slate-950 p-2 rounded-full shadow-lg cursor-pointer hover:scale-110 transition">
       <i data-lucide="at-sign" class="w-4 h-4"></i>
       <span id="mention-count" class="absolute -top-1 -right-1 bg-red-500 text-white text-[9px] font-black w-4 h-4 rounded-full flex items-center justify-center border-2 border-slate-900 shadow-md">1</span>
     </div>
 
-    <button id="scroll-bottom-btn" onclick="scrollToBottom()" class="absolute bottom-16 left-4 z-30 hidden bg-slate-800/90 border border-slate-700 text-slate-200 p-2 rounded-full shadow-xl hover:bg-slate-700 transition backdrop-blur-md">
+    <!-- زر النزول للأسفل: على اليسار ومرتفع قليلاً لتجنب التداخل -->
+    <button id="scroll-bottom-btn" onclick="scrollToBottom()" class="absolute bottom-[115px] left-4 z-30 hidden bg-slate-800/90 border border-slate-700 text-slate-200 p-2 rounded-full shadow-xl hover:bg-slate-700 transition backdrop-blur-md">
       <i data-lucide="arrow-down" class="w-4 h-4"></i>
     </button>
 
@@ -189,9 +214,8 @@
   </main>
 
   <script type="module">
-    // تمت إضافة query و limitToLast لتحسين الأداء وسرعة التحميل بشكل هائل
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-    import { getDatabase, ref, push, onChildAdded, onChildChanged, onChildRemoved, set, onValue, onDisconnect, update, remove, get, query, limitToLast } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
+    import { getDatabase, ref, push, onChildAdded, onChildChanged, onChildRemoved, set, onValue, onDisconnect, update, remove, get, query, limitToLast, orderByChild } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
 
     const firebaseConfig = {
       apiKey: "AIzaSyCg8zxqsAQyUhdW5D_1MuL1db885ZzIQvg",
@@ -203,25 +227,22 @@
 
     const app = initializeApp(firebaseConfig);
     const db = getDatabase(app);
-    const chatRef = ref(db, 'munqidh_live_chat_v2');
+    const chatRef = ref(db, 'munqidh_live_chat_v3');
+    const typingRef = ref(db, 'munqidh_typing_status');
     
-    // استعلام لجلب آخر 70 رسالة فقط (لحل مشكلة التعليق والتحميل الطويل)
-    const recentChatsQuery = query(chatRef, limitToLast(120));
+    const recentChatsQuery = query(chatRef, orderByChild('timestamp'), limitToLast(50));
 
     let currentUser = JSON.parse(localStorage.getItem('munqidh_user_data'));
     let selectedImageBase64 = null;
+    let typingTimeout = null;
 
     let soundSettings = JSON.parse(localStorage.getItem('munqidh_sound_settings')) || {
-       send: true,
-       recv: true,
-       reply: true
+       send: true, recv: true, reply: true
     };
 
-    // --- منطق شاشة التحميل ---
     const loaderOverlay = document.getElementById('loading-overlay');
     const weakNetWarning = document.getElementById('weak-net-warning');
     
-    // إظهار إشعار ضعف الإنترنت بعد 12 ثانية إذا لم يكتمل التحميل
     const loadingTimeout = setTimeout(() => {
         if (weakNetWarning && loaderOverlay && !loaderOverlay.classList.contains('hidden')) {
             weakNetWarning.classList.remove('hidden');
@@ -244,21 +265,13 @@
         }
     }
 
-    // إخفاء التحميل بمجرد جلب البيانات الأساسية من الفايربيس
-    onValue(recentChatsQuery, (snapshot) => {
-        hideLoader();
-    }, { onlyOnce: true });
-
-    // في حال كانت الداتابيس فارغة أو تعذر الاتصال تماماً (حماية إضافية)
-    setTimeout(hideLoader, 20000); // إخفاء إجباري بعد 20 ثانية كحد أقصى
-
-    // ----------------------
+    onValue(recentChatsQuery, (snapshot) => { hideLoader(); }, { onlyOnce: true });
+    setTimeout(hideLoader, 20000); 
 
     if (currentUser) {
        document.getElementById('login-modal').classList.add('hidden');
        setupPresence();
     } else {
-       // إذا لم يسجل دخول، يمكننا إخفاء التحميل مؤقتاً أو تركه يعمل بالخلفية
        hideLoader();
     }
 
@@ -387,11 +400,13 @@
     function setupPresence() {
       const connectedRef = ref(db, ".info/connected");
       const myPresenceRef = ref(db, 'munqidh_presence/' + currentUser.id);
+      const myTypingRef = ref(db, `munqidh_typing_status/${currentUser.id}`);
       
       onValue(connectedRef, (snap) => {
         if (snap.val() === true) {
           set(myPresenceRef, { name: currentUser.name, role: currentUser.role });
           onDisconnect(myPresenceRef).remove();
+          onDisconnect(myTypingRef).remove(); 
         }
       });
 
@@ -399,6 +414,57 @@
          document.getElementById('online-count').innerText = snap.size || 0;
       });
     }
+
+    const chatInput = document.getElementById('chat-input');
+    
+    chatInput.addEventListener('input', () => {
+       if (!currentUser || chatInput.value.trim() === '') return;
+       
+       set(ref(db, `munqidh_typing_status/${currentUser.id}`), {
+           name: currentUser.name,
+           pic: currentUser.pic,
+           typing: true
+       });
+
+       if (typingTimeout) clearTimeout(typingTimeout);
+
+       typingTimeout = setTimeout(() => {
+           set(ref(db, `munqidh_typing_status/${currentUser.id}`), null);
+       }, 1500);
+    });
+
+    onValue(typingRef, (snapshot) => {
+        const indicator = document.getElementById('typing-indicator');
+        const avatarsDiv = document.getElementById('typing-avatars');
+        const textSpan = document.getElementById('typing-text');
+        
+        let typists = [];
+        snapshot.forEach(child => {
+            const val = child.val();
+            if (val && val.typing && child.key !== currentUser?.id) {
+                typists.push(val);
+            }
+        });
+
+        if (typists.length > 0) {
+            avatarsDiv.innerHTML = typists.slice(0, 3).map(t => 
+                `<img src="${t.pic}" class="w-[22px] h-[22px] rounded-full border-[1.5px] border-slate-900 object-cover shadow-sm" />`
+            ).join('');
+            
+            let text = '';
+            if (typists.length === 1) text = `${typists[0].name.split(' ')[0]} يكتب`;
+            else if (typists.length === 2) text = `${typists[0].name.split(' ')[0]} و ${typists[1].name.split(' ')[0]} يكتبان`;
+            else text = `${typists[0].name.split(' ')[0]} و ${typists.length - 1} آخرين يكتبون`;
+            
+            textSpan.innerText = text;
+            
+            indicator.classList.remove('opacity-0', 'translate-y-4');
+            indicator.classList.add('opacity-100', 'translate-y-0');
+        } else {
+            indicator.classList.remove('opacity-100', 'translate-y-0');
+            indicator.classList.add('opacity-0', 'translate-y-4');
+        }
+    });
 
     const sndSend = new Audio('https://assets.mixkit.co/active_storage/sfx/2354/2354-preview.mp3');
     const sndRecv = new Audio('https://assets.mixkit.co/active_storage/sfx/2354/2354-preview.mp3');
@@ -413,9 +479,7 @@
         audioElement.currentTime = 0;
         let playPromise = audioElement.play();
         if (playPromise !== undefined) {
-            playPromise.catch(error => {
-                console.log("تم حظر التشغيل التلقائي للصوت:", error);
-            });
+            playPromise.catch(error => { console.log("تم حظر التشغيل التلقائي للصوت:", error); });
         }
     }
 
@@ -436,7 +500,6 @@
        chatContainer.scrollTo({ top: chatContainer.scrollHeight, behavior: 'smooth' });
     }
 
-    // هنا استخدمنا الاستعلام المحدود (recentChatsQuery) لزيادة السرعة
     onChildAdded(recentChatsQuery, (snapshot) => {
       const data = snapshot.val();
       data.id = snapshot.key;
@@ -500,6 +563,9 @@
       push(chatRef, newMsg).then(() => {
          if (soundSettings.send) playSoundSafe(sndSend);
       });
+
+      set(ref(db, `munqidh_typing_status/${currentUser.id}`), null);
+      if (typingTimeout) clearTimeout(typingTimeout);
 
       input.value = '';
       cancelReply();
@@ -570,22 +636,18 @@
       setupTouchGestures(wrapper.querySelector('.bubble-content'), data);
       
       if (window.lucide) {
-          lucide.createIcons({
-              root: wrapper
-          });
+          lucide.createIcons({ root: wrapper });
       }
     }
 
     window.deleteMessage = function(id) {
-       if(confirm('هل أنت متأكد من حذف هذه الرسالة؟')) {
-          remove(ref(db, `munqidh_live_chat_v2/${id}`));
-       }
+       if(confirm('هل أنت متأكد من حذف هذه الرسالة؟')) remove(ref(db, `munqidh_live_chat_v3/${id}`));
     };
 
     window.editMessage = function(id, oldText) {
        const newText = prompt('تعديل الرسالة:', oldText);
        if(newText !== null && newText.trim() !== '' && newText !== oldText) {
-          update(ref(db, `munqidh_live_chat_v2/${id}`), { text: newText.trim(), edited: true });
+          update(ref(db, `munqidh_live_chat_v3/${id}`), { text: newText.trim(), edited: true });
        }
     };
 
@@ -593,43 +655,19 @@
       let startX = 0, startY = 0, pressTimer;
       
       element.addEventListener('touchstart', (e) => {
-        startX = e.touches[0].clientX; 
-        startY = e.touches[0].clientY;
+        startX = e.touches[0].clientX; startY = e.touches[0].clientY;
         element.style.transform = 'scale(0.98)';
-        
-        pressTimer = setTimeout(() => { 
-            triggerReply(data); 
-            if(navigator.vibrate) navigator.vibrate(50); 
-            element.style.transform = 'scale(1)';
-        }, 500); 
+        pressTimer = setTimeout(() => { triggerReply(data); if(navigator.vibrate) navigator.vibrate(50); element.style.transform = 'scale(1)'; }, 500); 
       }, {passive: true});
 
       element.addEventListener('touchmove', (e) => {
-        let diffX = startX - e.touches[0].clientX;
-        let diffY = Math.abs(startY - e.touches[0].clientY);
-        
-        if(Math.abs(diffX) > 10 || diffY > 10) {
-            clearTimeout(pressTimer); 
-            element.style.transform = 'scale(1)';
-        }
-        
-        if (diffX > 50 && diffY < 30) { 
-            clearTimeout(pressTimer);
-            triggerReply(data); 
-            if(navigator.vibrate) navigator.vibrate(50); 
-            startX = e.touches[0].clientX; 
-            element.style.transform = 'scale(1)';
-        }
+        let diffX = startX - e.touches[0].clientX; let diffY = Math.abs(startY - e.touches[0].clientY);
+        if(Math.abs(diffX) > 10 || diffY > 10) { clearTimeout(pressTimer); element.style.transform = 'scale(1)'; }
+        if (diffX > 50 && diffY < 30) { clearTimeout(pressTimer); triggerReply(data); if(navigator.vibrate) navigator.vibrate(50); startX = e.touches[0].clientX; element.style.transform = 'scale(1)'; }
       }, {passive: true});
 
-      element.addEventListener('touchend', () => { 
-          clearTimeout(pressTimer); 
-          element.style.transform = 'scale(1)'; 
-      });
-      element.addEventListener('touchcancel', () => { 
-          clearTimeout(pressTimer); 
-          element.style.transform = 'scale(1)'; 
-      });
+      element.addEventListener('touchend', () => { clearTimeout(pressTimer); element.style.transform = 'scale(1)'; });
+      element.addEventListener('touchcancel', () => { clearTimeout(pressTimer); element.style.transform = 'scale(1)'; });
       element.addEventListener('dblclick', () => triggerReply(data));
     }
 
@@ -687,14 +725,10 @@
     };
 
     function escapeHtml(string) {
-      return String(string).replace(/[&<>"']/g, function (s) {
-        return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[s];
-      });
+      return String(string).replace(/[&<>"']/g, function (s) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[s]; });
     }
 
-    if (window.lucide) {
-        lucide.createIcons();
-    }
+    if (window.lucide) lucide.createIcons();
   </script>
 </body>
 </html>
