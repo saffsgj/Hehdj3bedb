@@ -1,58 +1,700 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>مشغل الفيديو</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>ملتقى المنصة العام</title>
 
-<style>
-html, body {
-    margin: 0;
-    padding: 0;
-    width: 100%;
-    height: 100%;
-    overflow: hidden;
-    background: #000;
-}
+  <script src="https://cdn.tailwindcss.com"></script>
 
-iframe {
-    width: 100%;
-    height: 100vh;
-    border: none;
-}
-</style>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+          
+  <script src="https://unpkg.com/lucide@latest"></script>
+
+  <style>
+    body { font-family: 'Cairo', sans-serif; }
+    .custom-scrollbar::-webkit-scrollbar { width: 3px; }
+    .custom-scrollbar::-webkit-scrollbar-thumb { background: #334155; border-radius: 10px; }
+    
+    @keyframes messageSlide {
+      from { opacity: 0; transform: translateY(8px) scale(0.98); }
+      to { opacity: 1; transform: translateY(0) scale(1); }
+    }
+    .msg-animate { animation: messageSlide 0.25s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+    .reply-swipe-anim { transition: transform 0.2s ease-out; }
+    .fade-out { opacity: 0; transform: scale(0.9); transition: all 0.3s ease-out; }
+  </style>
 </head>
+<body class="bg-slate-950 text-slate-100 h-[100dvh] w-full overflow-hidden selection:bg-amber-500 selection:text-slate-950 flex items-center justify-center p-0 md:p-3">
 
-<body>
+  <div id="login-modal" class="fixed inset-0 z-50 bg-slate-950/95 backdrop-blur-md flex items-center justify-center p-4">
+    <div class="bg-slate-900 border border-slate-800 rounded-3xl p-5 w-full max-w-sm shadow-2xl shadow-amber-500/10 max-h-[85vh] overflow-y-auto custom-scrollbar">
+      <div class="w-14 h-14 bg-amber-500/20 text-amber-500 rounded-2xl flex items-center justify-center mx-auto mb-3 border border-amber-500/30">
+        <i data-lucide="user-plus" class="w-7 h-7"></i>
+      </div>
+      <h2 class="text-lg font-extrabold text-center mb-1 text-slate-100">مرحباً بك في الملتقى</h2>
+      <p class="text-[11px] text-center text-slate-400 mb-5">يرجى إدخال بياناتك للبدء في الدردشة</p>
+      
+      <div class="space-y-3.5 text-sm">
+        <div>
+          <label class="block text-[11px] font-bold text-slate-400 mb-1">الاسم</label>
+          <input type="text" id="reg-name" placeholder="اكتب اسمك هنا..." class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2.5 text-xs text-slate-100 focus:border-amber-500 outline-none" />
+        </div>
+        
+        <div>
+          <label class="block text-[11px] font-bold text-slate-400 mb-1">الصورة الشخصية (من الاستوديو)</label>
+          <label for="reg-file-input" class="flex items-center justify-center gap-2 w-full bg-slate-950 border border-dashed border-slate-700 hover:border-amber-500 rounded-xl px-3.5 py-2.5 text-slate-300 cursor-pointer transition text-[11px] font-bold">
+            <i data-lucide="image-plus" class="w-4 h-4 text-amber-500"></i>
+            <span id="file-name-label" class="truncate">اختر صورة من جهازك...</span>
+          </label>
+          <input type="file" id="reg-file-input" accept="image/*" class="hidden" onchange="handleImageSelection(event)" />
+        </div>
 
-<iframe
-    src="https://tvnise.site/albaplayer/fder/?serv=2"
-    allowfullscreen>
-</iframe>
+        <div>
+          <label class="block text-[11px] font-bold text-slate-400 mb-1">كود الصلاحية (اختياري)</label>
+          <input type="text" id="reg-code" placeholder="اتركه فارغاً إذا كنت طالباً" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2.5 text-xs text-slate-100 focus:border-amber-500 outline-none" />
+        </div>
+      </div>
+      
+      <div class="mt-6 flex gap-2.5">
+        <button onclick="saveProfile()" class="flex-1 bg-amber-500 hover:bg-amber-600 text-slate-950 text-xs font-extrabold py-2.5 rounded-xl transition">حفظ وبدء</button>
+        <button onclick="skipProfile()" class="flex-1 bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-bold py-2.5 rounded-xl transition">تخطي كطالب</button>
+      </div>
+    </div>
+  </div>
 
-<script>
-// تعطيل الزر الأيمن
-document.addEventListener('contextmenu', function(e) {
-    e.preventDefault();
-});
+  <div id="profile-modal" class="fixed inset-0 z-50 hidden bg-slate-950/90 backdrop-blur-sm flex items-center justify-center p-4 opacity-0 transition-opacity duration-300" onclick="closeProfileModal()">
+    <div class="bg-slate-900 border border-slate-800 rounded-3xl p-5 w-full max-w-xs text-center shadow-2xl relative" onclick="event.stopPropagation()">
+      <button onclick="closeProfileModal()" class="absolute top-3 right-3 text-slate-400 hover:text-white bg-slate-800 p-1.5 rounded-lg"><i data-lucide="x" class="w-4 h-4"></i></button>
+      <img id="modal-img" src="" class="w-28 h-28 rounded-full object-cover mx-auto border-4 border-slate-800 mb-3 shadow-lg" />
+      <h3 id="modal-name" class="text-base font-black text-slate-100 mb-1"></h3>
+      <span id="modal-role" class="inline-block px-3 py-0.5 rounded-full text-[11px] font-bold bg-slate-800 text-slate-300"></span>
+    </div>
+  </div>
 
-// تعطيل بعض الاختصارات
-document.addEventListener('keydown', function(e) {
+  <div id="settings-modal" class="fixed inset-0 z-50 hidden bg-slate-950/90 backdrop-blur-sm flex items-center justify-center p-4 opacity-0 transition-opacity duration-300" onclick="closeSettingsModal()">
+    <div class="bg-slate-900 border border-slate-800 rounded-3xl p-5 w-full max-w-sm shadow-2xl relative space-y-4 max-h-[85vh] overflow-y-auto custom-scrollbar" onclick="event.stopPropagation()">
+      <div class="flex items-center justify-between border-b border-slate-800 pb-3">
+        <h3 class="text-sm font-extrabold text-slate-100 flex items-center gap-2">
+          <i data-lucide="settings" class="w-4 h-4 text-amber-500"></i> إعدادات الدردشة
+        </h3>
+        <button onclick="closeSettingsModal()" class="text-slate-400 hover:text-white bg-slate-800 p-1.5 rounded-lg"><i data-lucide="x" class="w-4 h-4"></i></button>
+      </div>
 
-    if (e.key === 'F12') {
-        e.preventDefault();
+      <div class="space-y-2.5">
+        <h4 class="text-[11px] font-bold text-amber-400">إعدادات الأصوات</h4>
+        <div class="flex items-center justify-between bg-slate-950/50 p-2.5 rounded-xl border border-slate-800">
+          <span class="text-xs text-slate-300">صوت إرسال الرسائل</span>
+          <input type="checkbox" id="snd-send-toggle" onchange="updateSoundSettings()" class="w-4 h-4 accent-amber-500 cursor-pointer" />
+        </div>
+        <div class="flex items-center justify-between bg-slate-950/50 p-2.5 rounded-xl border border-slate-800">
+          <span class="text-xs text-slate-300">صوت استقبال الرسائل</span>
+          <input type="checkbox" id="snd-recv-toggle" onchange="updateSoundSettings()" class="w-4 h-4 accent-amber-500 cursor-pointer" />
+        </div>
+        <div class="flex items-center justify-between bg-slate-950/50 p-2.5 rounded-xl border border-slate-800">
+          <span class="text-xs text-slate-300">صوت الردود (المنشن)</span>
+          <input type="checkbox" id="snd-reply-toggle" onchange="updateSoundSettings()" class="w-4 h-4 accent-amber-500 cursor-pointer" />
+        </div>
+      </div>
+
+      <div class="space-y-2 pt-2 border-t border-slate-800">
+        <h4 class="text-[11px] font-bold text-amber-400">النشاط والحساب</h4>
+        <button onclick="clearMyActivity()" class="w-full flex items-center justify-center gap-2 bg-red-500/10 hover:bg-red-500/20 text-red-400 border border-red-500/30 text-xs font-bold py-2.5 rounded-xl transition">
+          <i data-lucide="trash" class="w-4 h-4"></i> حذف نشاطي (حذف كل رسائلي)
+        </button>
+        <button onclick="deleteAccount()" class="w-full flex items-center justify-center gap-2 bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-bold py-2.5 rounded-xl transition">
+          <i data-lucide="user-x" class="w-4 h-4"></i> حذف الحساب وتسجيل الخروج
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <main class="w-full max-w-sm md:max-w-md h-full md:h-[90dvh] flex flex-col bg-slate-900/90 md:rounded-3xl shadow-2xl border border-slate-800/80 relative overflow-hidden">
+    
+    <!-- شاشة التحميل المطورة -->
+    <div id="loading-overlay" class="absolute inset-0 z-40 bg-slate-950/95 backdrop-blur-sm flex flex-col items-center justify-center transition-opacity duration-500">
+      <div class="w-12 h-12 border-4 border-slate-700 border-t-amber-500 rounded-full animate-spin mb-4 shadow-lg shadow-amber-500/20"></div>
+      <h2 class="text-sm font-extrabold text-slate-100 mb-1">جاري فتح الملتقى...</h2>
+      <p class="text-[11px] text-slate-400">يرجى الانتظار، يتم جلب الرسائل</p>
+      
+      <div id="weak-net-warning" class="mt-6 flex flex-col items-center opacity-0 hidden transition-all duration-500 transform translate-y-4">
+         <div class="bg-red-500/10 border border-red-500/30 text-red-400 px-4 py-2.5 rounded-xl text-xs font-bold flex items-center gap-2 shadow-inner">
+           <i data-lucide="wifi-off" class="w-4 h-4"></i>
+           <span>يبدو أن اتصالك بالإنترنت ضعيف، يرجى الانتظار...</span>
+         </div>
+      </div>
+    </div>
+
+    <header class="flex items-center justify-between px-4 py-3 border-b border-slate-800/80 bg-slate-900/95 backdrop-blur z-20 shrink-0">
+      <div class="flex items-center gap-2.5">
+        <div class="relative">
+          <div class="w-9 h-9 rounded-xl bg-gradient-to-tr from-amber-500/20 to-orange-500/20 border border-amber-500/30 flex items-center justify-center text-amber-400 shadow-inner">
+            <i data-lucide="messages-square" class="w-4 h-4"></i>
+          </div>
+          <span class="absolute -bottom-0.5 -right-0.5 flex h-2.5 w-2.5">
+            <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+            <span class="relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-500 border-2 border-slate-900"></span>
+          </span>
+        </div>
+        <div>
+          <h1 class="text-xs font-extrabold text-slate-100">ملتقى منقذ المهني</h1>
+          <p class="text-[10px] text-slate-400 mt-0.2 flex items-center gap-1">
+            <i data-lucide="users" class="w-3 h-3 text-emerald-500"></i>
+            متصل الآن: <span id="online-count" class="text-emerald-400 font-bold">1</span>
+          </p>
+        </div>
+      </div>
+
+      <button onclick="openSettingsModal()" class="p-2 bg-slate-800/80 hover:bg-slate-800 text-slate-300 rounded-xl border border-slate-700 transition flex items-center justify-center">
+        <i data-lucide="settings" class="w-4 h-4 text-amber-400"></i>
+      </button>
+    </header>
+
+    <div id="chat-messages" class="flex-1 overflow-y-auto overflow-x-hidden p-3 space-y-3 custom-scrollbar text-sm relative scroll-smooth bg-slate-950/40">
+      <div class="bg-amber-500/10 border border-amber-500/20 rounded-2xl p-2.5 text-[11px] text-amber-300/90 text-center mx-auto w-11/12 shadow-sm">
+        👋 مرحباً بك! (اسحب الرسالة للرد، اضغط على صورة أي شخص لعرض حسابه)
+      </div>
+    </div>
+
+    <div id="mention-badge" onclick="scrollToNextReply()" class="absolute bottom-16 right-4 z-30 hidden bg-amber-500 text-slate-950 p-2 rounded-full shadow-lg cursor-pointer hover:scale-110 transition">
+      <i data-lucide="at-sign" class="w-4 h-4"></i>
+      <span id="mention-count" class="absolute -top-1 -right-1 bg-red-500 text-white text-[9px] font-black w-4 h-4 rounded-full flex items-center justify-center border-2 border-slate-900 shadow-md">1</span>
+    </div>
+
+    <button id="scroll-bottom-btn" onclick="scrollToBottom()" class="absolute bottom-16 left-4 z-30 hidden bg-slate-800/90 border border-slate-700 text-slate-200 p-2 rounded-full shadow-xl hover:bg-slate-700 transition backdrop-blur-md">
+      <i data-lucide="arrow-down" class="w-4 h-4"></i>
+    </button>
+
+    <footer class="shrink-0 bg-slate-900/95 backdrop-blur p-2.5 border-t border-slate-800/80 z-20">
+      <div id="reply-preview" class="hidden shrink-0 flex items-center justify-between bg-slate-950/60 p-2 mb-2 rounded-xl border border-amber-500/30">
+          <div class="border-r-2 border-amber-500 pr-2 overflow-hidden flex-1">
+            <p id="reply-preview-sender" class="text-amber-400 text-[10px] font-bold mb-0.5"></p>
+            <p id="reply-preview-text" class="text-slate-300 text-[10px] truncate"></p>
+          </div>
+          <button type="button" onclick="cancelReply()" class="text-slate-500 hover:text-red-400 p-1 bg-slate-800 rounded-lg ml-1 transition">
+            <i data-lucide="x" class="w-3.5 h-3.5"></i>
+          </button>
+      </div>
+
+      <form id="chat-form" onsubmit="sendMessage(event)" class="flex items-center gap-2 relative">
+        <input type="text" id="chat-input" placeholder="اكتب رسالتك هنا..." class="flex-1 bg-slate-950/80 border border-slate-700/80 rounded-xl px-3.5 py-2.5 text-xs text-slate-100 focus:outline-none focus:border-amber-500/80 transition shadow-inner" required autocomplete="off" />
+        <button type="submit" class="p-2.5 rounded-xl bg-gradient-to-r from-amber-500 to-orange-500 text-slate-950 hover:brightness-110 active:scale-95 transition font-extrabold shadow-md shrink-0 flex items-center justify-center">
+          <i data-lucide="send" class="w-4 h-4"></i>
+        </button>
+      </form>
+    </footer>
+
+  </main>
+
+  <script type="module">
+    // تمت إضافة query و limitToLast لتحسين الأداء وسرعة التحميل بشكل هائل
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+    import { getDatabase, ref, push, onChildAdded, onChildChanged, onChildRemoved, set, onValue, onDisconnect, update, remove, get, query, limitToLast } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyCg8zxqsAQyUhdW5D_1MuL1db885ZzIQvg",
+      authDomain: "munqidhapp-638c0.firebaseapp.com",
+      databaseURL: "https://munqidhapp-638c0-default-rtdb.firebaseio.com",
+      projectId: "munqidhapp-638c0",
+      storageBucket: "munqidhapp-638c0.firebasestorage.app"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getDatabase(app);
+    const chatRef = ref(db, 'munqidh_live_chat_v2');
+    
+    // استعلام لجلب آخر 70 رسالة فقط (لحل مشكلة التعليق والتحميل الطويل)
+    const recentChatsQuery = query(chatRef, limitToLast(120));
+
+    let currentUser = JSON.parse(localStorage.getItem('munqidh_user_data'));
+    let selectedImageBase64 = null;
+
+    let soundSettings = JSON.parse(localStorage.getItem('munqidh_sound_settings')) || {
+       send: true,
+       recv: true,
+       reply: true
+    };
+
+    // --- منطق شاشة التحميل ---
+    const loaderOverlay = document.getElementById('loading-overlay');
+    const weakNetWarning = document.getElementById('weak-net-warning');
+    
+    // إظهار إشعار ضعف الإنترنت بعد 12 ثانية إذا لم يكتمل التحميل
+    const loadingTimeout = setTimeout(() => {
+        if (weakNetWarning && loaderOverlay && !loaderOverlay.classList.contains('hidden')) {
+            weakNetWarning.classList.remove('hidden');
+            setTimeout(() => {
+                weakNetWarning.classList.remove('opacity-0', 'translate-y-4');
+                weakNetWarning.classList.add('opacity-100', 'translate-y-0');
+            }, 50);
+            if (window.lucide) lucide.createIcons({ root: weakNetWarning });
+        }
+    }, 12000);
+
+    function hideLoader() {
+        clearTimeout(loadingTimeout);
+        if (loaderOverlay) {
+            loaderOverlay.classList.add('opacity-0');
+            setTimeout(() => {
+                loaderOverlay.classList.add('hidden');
+                scrollToBottom();
+            }, 500);
+        }
     }
 
-    if (e.ctrlKey && e.shiftKey &&
-        (e.key === 'I' || e.key === 'J' || e.key === 'C')) {
-        e.preventDefault();
+    // إخفاء التحميل بمجرد جلب البيانات الأساسية من الفايربيس
+    onValue(recentChatsQuery, (snapshot) => {
+        hideLoader();
+    }, { onlyOnce: true });
+
+    // في حال كانت الداتابيس فارغة أو تعذر الاتصال تماماً (حماية إضافية)
+    setTimeout(hideLoader, 20000); // إخفاء إجباري بعد 20 ثانية كحد أقصى
+
+    // ----------------------
+
+    if (currentUser) {
+       document.getElementById('login-modal').classList.add('hidden');
+       setupPresence();
+    } else {
+       // إذا لم يسجل دخول، يمكننا إخفاء التحميل مؤقتاً أو تركه يعمل بالخلفية
+       hideLoader();
     }
 
-    if (e.ctrlKey && e.key === 'U') {
-        e.preventDefault();
-    }
-});
-</script>
+    document.getElementById('snd-send-toggle').checked = soundSettings.send;
+    document.getElementById('snd-recv-toggle').checked = soundSettings.recv;
+    document.getElementById('snd-reply-toggle').checked = soundSettings.reply;
 
+    window.updateSoundSettings = function() {
+       soundSettings = {
+          send: document.getElementById('snd-send-toggle').checked,
+          recv: document.getElementById('snd-recv-toggle').checked,
+          reply: document.getElementById('snd-reply-toggle').checked
+       };
+       localStorage.setItem('munqidh_sound_settings', JSON.stringify(soundSettings));
+    };
+
+    window.openSettingsModal = function() {
+       const modal = document.getElementById('settings-modal');
+       modal.classList.remove('hidden');
+       setTimeout(() => modal.classList.remove('opacity-0'), 10);
+    };
+
+    window.closeSettingsModal = function() {
+       const modal = document.getElementById('settings-modal');
+       modal.classList.add('opacity-0');
+       setTimeout(() => modal.classList.add('hidden'), 300);
+    };
+
+    window.clearMyActivity = async function() {
+       if(!confirm('هل أنت متأكد من حذف جميع رسائلك النشطة في الدردشة؟')) return;
+       const snapshot = await get(chatRef);
+       if(snapshot.exists()) {
+          const updates = {};
+          snapshot.forEach((childSnap) => {
+             const msg = childSnap.val();
+             if(msg.userId === currentUser.id) {
+                updates[childSnap.key] = null;
+             }
+          });
+          await update(chatRef, updates);
+          alert('تم حذف نشاطك بنجاح.');
+          closeSettingsModal();
+       }
+    };
+
+    window.deleteAccount = function() {
+       if(!confirm('هل تريد حقاً حذف حسابك من هذا الجهاز؟')) return;
+       localStorage.removeItem('munqidh_user_data');
+       location.reload();
+    };
+
+    const defaultImages = {
+      user: 'https://cdn-icons-png.flaticon.com/512/149/149071.png',
+      manager: 'https://cdn-icons-png.flaticon.com/512/3135/3135715.png',
+      developer: 'https://cdn-icons-png.flaticon.com/512/6062/6062646.png',
+      moderator: 'https://cdn-icons-png.flaticon.com/512/4042/4042253.png'
+    };
+
+    window.handleImageSelection = function(event) {
+       const file = event.target.files[0];
+       if (file) {
+          document.getElementById('file-name-label').innerText = file.name;
+          const reader = new FileReader();
+          reader.onload = function(e) {
+             const img = new Image();
+             img.src = e.target.result;
+             img.onload = function() {
+                const canvas = document.createElement('canvas');
+                const MAX_WIDTH = 200;
+                const MAX_HEIGHT = 200;
+                let width = img.width;
+                let height = img.height;
+
+                if (width > height) {
+                   if (width > MAX_WIDTH) { height *= MAX_WIDTH / width; width = MAX_WIDTH; }
+                } else {
+                   if (height > MAX_HEIGHT) { width *= MAX_HEIGHT / height; height = MAX_HEIGHT; }
+                }
+
+                canvas.width = width;
+                canvas.height = height;
+                const ctx = canvas.getContext('2d');
+                ctx.drawImage(img, 0, 0, width, height);
+                selectedImageBase64 = canvas.toDataURL('image/jpeg', 0.7);
+             }
+          };
+          reader.readAsDataURL(file);
+       }
+    };
+
+    window.saveProfile = function() {
+       let name = document.getElementById('reg-name').value.trim() || 'طالب مجتهد';
+       let code = document.getElementById('reg-code').value.trim();
+       
+       let role = 'user';
+       if(code === 'MGR-777') role = 'manager';
+       else if(code === 'DEV-999') role = 'developer';
+       else if(code.startsWith('MOD-1') && parseInt(code.split('-')[1]) <= 110) role = 'moderator';
+
+       let pic = selectedImageBase64 || defaultImages[role];
+
+       currentUser = {
+         id: 'user_' + Date.now() + Math.random().toString(36).substr(2,9),
+         name: name,
+         pic: pic,
+         role: role
+       };
+
+       localStorage.setItem('munqidh_user_data', JSON.stringify(currentUser));
+       document.getElementById('login-modal').classList.add('hidden');
+       setupPresence();
+    }
+
+    window.skipProfile = function() {
+       currentUser = {
+         id: 'user_' + Date.now() + Math.random().toString(36).substr(2,9),
+         name: 'طالب (زائر)',
+         pic: defaultImages.user,
+         role: 'user'
+       };
+       localStorage.setItem('munqidh_user_data', JSON.stringify(currentUser));
+       document.getElementById('login-modal').classList.add('hidden');
+       setupPresence();
+    }
+
+    function setupPresence() {
+      const connectedRef = ref(db, ".info/connected");
+      const myPresenceRef = ref(db, 'munqidh_presence/' + currentUser.id);
+      
+      onValue(connectedRef, (snap) => {
+        if (snap.val() === true) {
+          set(myPresenceRef, { name: currentUser.name, role: currentUser.role });
+          onDisconnect(myPresenceRef).remove();
+        }
+      });
+
+      onValue(ref(db, 'munqidh_presence'), (snap) => {
+         document.getElementById('online-count').innerText = snap.size || 0;
+      });
+    }
+
+    const sndSend = new Audio('https://assets.mixkit.co/active_storage/sfx/2354/2354-preview.mp3');
+    const sndRecv = new Audio('https://assets.mixkit.co/active_storage/sfx/2354/2354-preview.mp3');
+    const sndReply = new Audio('https://assets.mixkit.co/active_storage/sfx/2869/2869-preview.mp3');
+    
+    sndSend.preload = "auto";
+    sndRecv.preload = "auto";
+    sndReply.preload = "auto";
+
+    function playSoundSafe(audioElement) {
+        if (!audioElement) return;
+        audioElement.currentTime = 0;
+        let playPromise = audioElement.play();
+        if (playPromise !== undefined) {
+            playPromise.catch(error => {
+                console.log("تم حظر التشغيل التلقائي للصوت:", error);
+            });
+        }
+    }
+
+    let replyingTo = null;
+    let unseenReplies = [];
+    const initialLoadTime = Date.now();
+
+    const chatContainer = document.getElementById('chat-messages');
+    const scrollBtn = document.getElementById('scroll-bottom-btn');
+
+    chatContainer.addEventListener('scroll', () => {
+       const isAtBottom = chatContainer.scrollHeight - chatContainer.scrollTop - chatContainer.clientHeight < 200;
+       if(!isAtBottom) scrollBtn.classList.remove('hidden');
+       else scrollBtn.classList.add('hidden');
+    });
+
+    window.scrollToBottom = function() {
+       chatContainer.scrollTo({ top: chatContainer.scrollHeight, behavior: 'smooth' });
+    }
+
+    // هنا استخدمنا الاستعلام المحدود (recentChatsQuery) لزيادة السرعة
+    onChildAdded(recentChatsQuery, (snapshot) => {
+      const data = snapshot.val();
+      data.id = snapshot.key;
+      appendMessageToUI(data);
+
+      const isNew = data.timestamp > initialLoadTime - 2000;
+      const isReplyToMe = data.replyTo && data.replyTo.userId === currentUser?.id;
+
+      if (isNew && data.userId !== currentUser?.id) {
+         if (isReplyToMe) {
+            if (soundSettings.reply) playSoundSafe(sndReply);
+            unseenReplies.push(data.id);
+            updateBadge();
+         } else {
+            if (soundSettings.recv) playSoundSafe(sndRecv);
+         }
+      }
+    });
+
+    onChildChanged(chatRef, (snapshot) => {
+       const data = snapshot.val();
+       const el = document.getElementById(`msg-text-${snapshot.key}`);
+       if(el) {
+          el.innerText = data.text;
+          const editedTag = document.getElementById(`msg-edited-${snapshot.key}`);
+          if(!editedTag) {
+             const tag = document.createElement('span');
+             tag.id = `msg-edited-${snapshot.key}`;
+             tag.className = 'text-[9px] text-slate-500 mr-2';
+             tag.innerText = '(معدل)';
+             el.parentNode.appendChild(tag);
+          }
+       }
+    });
+
+    onChildRemoved(chatRef, (snapshot) => {
+       const wrapper = document.querySelector(`.message-wrapper[data-id="${snapshot.key}"]`);
+       if(wrapper) {
+          wrapper.classList.add('fade-out');
+          setTimeout(() => wrapper.remove(), 300);
+       }
+    });
+
+    window.sendMessage = function(event) {
+      event.preventDefault();
+      const input = document.getElementById('chat-input');
+      const text = input.value.trim();
+      if (!text || !currentUser) return;
+
+      const newMsg = {
+        userId: currentUser.id,
+        sender: currentUser.name,
+        pic: currentUser.pic,
+        role: currentUser.role,
+        text: text,
+        timestamp: Date.now()
+      };
+
+      if (replyingTo) newMsg.replyTo = replyingTo;
+
+      push(chatRef, newMsg).then(() => {
+         if (soundSettings.send) playSoundSafe(sndSend);
+      });
+
+      input.value = '';
+      cancelReply();
+    };
+
+    function appendMessageToUI(data) {
+      const timeStr = new Date(data.timestamp || Date.now()).toLocaleTimeString('ar-IQ', { hour: '2-digit', minute: '2-digit' });
+      const isMe = data.userId === currentUser?.id;
+      const hasModPower = ['manager', 'developer', 'moderator'].includes(currentUser?.role);
+      
+      const roleStyles = {
+        manager: { bg: 'bg-gradient-to-br from-amber-500/20 to-yellow-600/20', border: 'border-amber-500/50', name: 'text-amber-400', badge: '👑 مدير' },
+        developer: { bg: 'bg-gradient-to-br from-cyan-500/20 to-blue-600/20', border: 'border-cyan-500/50', name: 'text-cyan-400', badge: '💻 مطور' },
+        moderator: { bg: 'bg-gradient-to-br from-purple-500/20 to-fuchsia-600/20', border: 'border-purple-500/50', name: 'text-purple-400', badge: '🛡️ مشرف' },
+        user: { bg: isMe ? 'bg-emerald-500/10' : 'bg-slate-800/60', border: isMe ? 'border-emerald-500/30' : 'border-slate-700', name: isMe ? 'text-emerald-400' : 'text-slate-300', badge: '' }
+      };
+
+      const style = roleStyles[data.role] || roleStyles['user'];
+      const editedHTML = data.edited ? `<span id="msg-edited-${data.id}" class="text-[9px] text-slate-500 mr-2">(معدل)</span>` : '';
+
+      let actionButtons = '';
+      if(isMe || hasModPower) {
+        let editBtn = isMe ? `<button onclick="editMessage('${data.id}', \`${escapeHtml(data.text)}\`)" class="text-slate-500 hover:text-blue-400"><i data-lucide="edit-2" class="w-3.5 h-3.5"></i></button>` : '';
+        let delBtn = `<button onclick="deleteMessage('${data.id}')" class="text-slate-500 hover:text-red-400"><i data-lucide="trash-2" class="w-3.5 h-3.5"></i></button>`;
+        actionButtons = `<div class="flex gap-2 items-center opacity-0 group-hover:opacity-100 transition">${editBtn}${delBtn}</div>`;
+      }
+
+      let replyHTML = '';
+      if (data.replyTo) {
+         replyHTML = `
+           <div onclick="scrollToMessage('${data.replyTo.id}')" class="bg-slate-950/40 p-2 rounded-lg mb-2 border-r-2 ${isMe ? 'border-emerald-500' : 'border-slate-500'} cursor-pointer hover:bg-slate-950/60 transition">
+             <span class="text-[10px] font-bold block mb-0.5 text-slate-400">${escapeHtml(data.replyTo.sender)}</span>
+             <span class="text-[11px] text-slate-300 truncate block">${escapeHtml(data.replyTo.text)}</span>
+           </div>
+         `;
+      }
+
+      const wrapper = document.createElement('div');
+      wrapper.className = `message-wrapper flex items-start gap-2 msg-animate w-full group ${isMe ? 'flex-row-reverse' : ''}`;
+      wrapper.dataset.id = data.id;
+
+      const bubbleHTML = `
+        <img src="${data.pic}" onclick="showProfile('${data.pic}', '${escapeHtml(data.sender)}', '${style.badge || 'طالب'}')" class="w-7 h-7 rounded-full object-cover border border-slate-700 cursor-pointer shrink-0 mt-1 shadow-sm active:scale-90 transition" />
+        <div class="flex flex-col ${isMe ? 'items-end' : 'items-start'} max-w-[75%] min-w-0">
+          <div class="bubble-content ${style.bg} ${style.border} border rounded-2xl p-2.5 shadow-sm cursor-pointer select-none relative reply-swipe-anim transition-all ${isMe ? 'rounded-tl-none' : 'rounded-tr-none'} w-full min-w-[120px] max-w-full overflow-hidden">
+            ${replyHTML}
+            <div class="flex items-center justify-between gap-2 mb-1">
+              <span class="font-extrabold ${style.name} text-[11px] flex items-center gap-1">
+                ${escapeHtml(data.sender)} 
+                ${style.badge ? `<span class="text-[9px] bg-slate-950/50 px-1 py-0.5 rounded-full">${style.badge}</span>` : ''}
+              </span>
+            </div>
+            <p id="msg-text-${data.id}" class="text-slate-100 text-xs leading-relaxed break-words whitespace-pre-wrap w-full max-w-full overflow-hidden">${escapeHtml(data.text)}</p>
+            <div class="flex items-center justify-between mt-2 gap-3">
+               <span class="text-[9px] text-slate-500 shrink-0" dir="ltr">${timeStr}${editedHTML}</span>
+               ${actionButtons}
+            </div>
+          </div>
+        </div>
+      `;
+
+      wrapper.innerHTML = bubbleHTML;
+      chatContainer.appendChild(wrapper);
+
+      const isAtBottom = chatContainer.scrollHeight - chatContainer.scrollTop - chatContainer.clientHeight < 150;
+      if (isAtBottom || isMe) chatContainer.scrollTop = chatContainer.scrollHeight;
+
+      setupTouchGestures(wrapper.querySelector('.bubble-content'), data);
+      
+      if (window.lucide) {
+          lucide.createIcons({
+              root: wrapper
+          });
+      }
+    }
+
+    window.deleteMessage = function(id) {
+       if(confirm('هل أنت متأكد من حذف هذه الرسالة؟')) {
+          remove(ref(db, `munqidh_live_chat_v2/${id}`));
+       }
+    };
+
+    window.editMessage = function(id, oldText) {
+       const newText = prompt('تعديل الرسالة:', oldText);
+       if(newText !== null && newText.trim() !== '' && newText !== oldText) {
+          update(ref(db, `munqidh_live_chat_v2/${id}`), { text: newText.trim(), edited: true });
+       }
+    };
+
+    function setupTouchGestures(element, data) {
+      let startX = 0, startY = 0, pressTimer;
+      
+      element.addEventListener('touchstart', (e) => {
+        startX = e.touches[0].clientX; 
+        startY = e.touches[0].clientY;
+        element.style.transform = 'scale(0.98)';
+        
+        pressTimer = setTimeout(() => { 
+            triggerReply(data); 
+            if(navigator.vibrate) navigator.vibrate(50); 
+            element.style.transform = 'scale(1)';
+        }, 500); 
+      }, {passive: true});
+
+      element.addEventListener('touchmove', (e) => {
+        let diffX = startX - e.touches[0].clientX;
+        let diffY = Math.abs(startY - e.touches[0].clientY);
+        
+        if(Math.abs(diffX) > 10 || diffY > 10) {
+            clearTimeout(pressTimer); 
+            element.style.transform = 'scale(1)';
+        }
+        
+        if (diffX > 50 && diffY < 30) { 
+            clearTimeout(pressTimer);
+            triggerReply(data); 
+            if(navigator.vibrate) navigator.vibrate(50); 
+            startX = e.touches[0].clientX; 
+            element.style.transform = 'scale(1)';
+        }
+      }, {passive: true});
+
+      element.addEventListener('touchend', () => { 
+          clearTimeout(pressTimer); 
+          element.style.transform = 'scale(1)'; 
+      });
+      element.addEventListener('touchcancel', () => { 
+          clearTimeout(pressTimer); 
+          element.style.transform = 'scale(1)'; 
+      });
+      element.addEventListener('dblclick', () => triggerReply(data));
+    }
+
+    function triggerReply(data) {
+       replyingTo = { id: data.id, userId: data.userId, sender: data.sender, text: data.text };
+       document.getElementById('reply-preview-sender').innerText = 'الرد على: ' + data.sender;
+       document.getElementById('reply-preview-text').innerText = data.text;
+       document.getElementById('reply-preview').classList.remove('hidden');
+       document.getElementById('chat-input').focus();
+    }
+
+    window.cancelReply = function() {
+       replyingTo = null; document.getElementById('reply-preview').classList.add('hidden');
+    }
+
+    window.scrollToMessage = function(id) {
+       const el = document.querySelector(`.message-wrapper[data-id="${id}"]`);
+       if (el) {
+          el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          const bubble = el.querySelector('.bubble-content');
+          bubble.classList.add('bg-white/20', 'ring-2', 'ring-white');
+          setTimeout(() => bubble.classList.remove('bg-white/20', 'ring-2', 'ring-white'), 1500);
+       }
+    };
+
+    function updateBadge() {
+       const badge = document.getElementById('mention-badge');
+       const countElem = document.getElementById('mention-count');
+       if (unseenReplies.length > 0) { badge.classList.remove('hidden'); countElem.innerText = unseenReplies.length; }
+       else badge.classList.add('hidden');
+    }
+
+    window.scrollToNextReply = function() {
+       if (unseenReplies.length > 0) {
+          const targetId = unseenReplies.shift();
+          scrollToMessage(targetId);
+          updateBadge();
+       }
+    };
+
+    window.showProfile = function(pic, name, role) {
+       document.getElementById('modal-img').src = pic;
+       document.getElementById('modal-name').innerText = name;
+       document.getElementById('modal-role').innerText = role;
+       
+       const modal = document.getElementById('profile-modal');
+       modal.classList.remove('hidden');
+       setTimeout(() => modal.classList.remove('opacity-0'), 10);
+    };
+
+    window.closeProfileModal = function() {
+       const modal = document.getElementById('profile-modal');
+       modal.classList.add('opacity-0');
+       setTimeout(() => modal.classList.add('hidden'), 300);
+    };
+
+    function escapeHtml(string) {
+      return String(string).replace(/[&<>"']/g, function (s) {
+        return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[s];
+      });
+    }
+
+    if (window.lucide) {
+        lucide.createIcons();
+    }
+  </script>
 </body>
 </html>
