@@ -104,10 +104,8 @@
   <div id="tutorial-overlay" class="fixed inset-0 z-[250] hidden bg-slate-950/80 backdrop-blur-md flex items-center justify-center p-4 opacity-0 transition-opacity duration-500">
     <div class="bg-slate-900 border border-slate-700/80 rounded-3xl p-6 w-full max-w-sm shadow-[0_0_50px_rgba(245,158,11,0.15)] text-center relative overflow-hidden">
         <div class="absolute -top-10 -right-10 w-32 h-32 bg-amber-500/10 rounded-full blur-2xl pointer-events-none"></div>
-        
         <h2 class="text-xl font-black text-slate-100 mb-2 drop-shadow-md">كيف تتفاعل؟</h2>
         <p class="text-xs text-slate-400 mb-6">جرب الميزات الجديدة لجعل المحادثة أكثر متعة!</p>
-
         <div class="space-y-4 mb-8">
             <div class="flex items-center gap-4 bg-slate-950/50 p-3 rounded-2xl border border-slate-800">
                 <div class="w-12 h-12 bg-emerald-500/20 text-emerald-400 rounded-xl flex items-center justify-center shrink-0 border border-emerald-500/30">
@@ -118,7 +116,6 @@
                     <p class="text-[10px] text-slate-400">اسحب أي رسالة من اليمين لليسار</p>
                 </div>
             </div>
-            
             <div class="flex items-center gap-4 bg-slate-950/50 p-3 rounded-2xl border border-slate-800">
                 <div class="w-12 h-12 bg-red-500/20 text-red-400 rounded-xl flex items-center justify-center shrink-0 border border-red-500/30">
                     <i data-lucide="heart" class="w-6 h-6 animate-pulse"></i>
@@ -128,7 +125,6 @@
                     <p class="text-[10px] text-slate-400">نقر مزدوج سريع لإضافة إعجاب ❤️</p>
                 </div>
             </div>
-
             <div class="flex items-center gap-4 bg-slate-950/50 p-3 rounded-2xl border border-slate-800">
                 <div class="w-12 h-12 bg-blue-500/20 text-blue-400 rounded-xl flex items-center justify-center shrink-0 border border-blue-500/30">
                     <i data-lucide="smile" class="w-6 h-6"></i>
@@ -139,7 +135,6 @@
                 </div>
             </div>
         </div>
-
         <div class="flex flex-col gap-2.5">
             <button onclick="dismissTutorial(false)" class="w-full bg-amber-500 hover:bg-amber-600 text-slate-950 text-xs font-black py-3 rounded-xl transition active:scale-95 shadow-lg shadow-amber-500/20">حسناً، فهمت</button>
             <button onclick="dismissTutorial(true)" class="w-full bg-slate-800 hover:bg-slate-700 text-slate-400 hover:text-slate-200 text-xs font-bold py-2.5 rounded-xl transition border border-slate-700">تخطي، لا تظهر مجدداً</button>
@@ -159,7 +154,7 @@
       </div>
   </div>
 
-  <!-- نظام النوافذ المخصصة (Modals System) -->
+  <!-- النوافذ المخصصة -->
   <div id="ui-alert" class="fixed inset-0 z-[200] hidden bg-slate-950/80 backdrop-blur-md flex items-center justify-center p-4 opacity-0 transition-all duration-300">
     <div id="ui-alert-box" class="bg-slate-900 border border-slate-700/80 rounded-3xl p-6 w-full max-w-sm shadow-[0_0_40px_rgba(0,0,0,0.5)] transform scale-95 transition-transform duration-300 text-center">
         <div id="ui-alert-icon" class="w-14 h-14 mx-auto mb-4 rounded-2xl flex items-center justify-center"></div>
@@ -314,7 +309,7 @@
       </div>
     </div>
 
-    <header class="flex items-center justify-between px-4 py-3 border-b border-slate-800/80 bg-slate-900/95 backdrop-blur z-20 shrink-0">
+    <header class="flex items-center justify-between px-4 py-3 border-b border-slate-800/80 bg-slate-900/95 backdrop-blur z-30 shrink-0">
       <div class="flex items-center gap-2.5">
         <div class="relative">
           <div class="w-9 h-9 rounded-xl bg-gradient-to-tr from-amber-500/20 to-orange-500/20 border border-amber-500/30 flex items-center justify-center text-amber-400 shadow-inner">
@@ -339,9 +334,28 @@
       </button>
     </header>
 
-    <!-- منطقة الرسائل -->
-    <div id="chat-messages" class="flex-1 overflow-y-auto overflow-x-hidden p-3 space-y-3 custom-scrollbar text-sm relative scroll-smooth bg-slate-950/40">
-      <!-- الرسائل تظهر هنا -->
+    <!-- حاوية ديناميكية للرسائل وشريط الكتابة -->
+    <div class="flex-1 relative overflow-hidden flex flex-col z-10">
+      
+      <!-- شريط الكتابة المنزلق من الأعلى -->
+      <div id="typing-indicator" class="absolute top-0 inset-x-0 w-full flex items-center justify-center bg-gradient-to-r from-transparent via-slate-800/90 to-transparent backdrop-blur-md border-b border-amber-500/30 transition-all duration-300 transform -translate-y-full opacity-0 z-20 shadow-lg py-1.5 pointer-events-none">
+        <div class="flex items-center justify-center gap-2 w-full px-4">
+          <div id="typing-avatars" class="flex -space-x-1.5 space-x-reverse"></div>
+          <div class="flex items-center gap-1.5">
+            <span id="typing-text" class="text-[10px] text-amber-400 font-bold"></span>
+            <div class="flex gap-[3px] items-center mt-0.5">
+              <div class="w-1 h-1 bg-amber-400 rounded-full typing-dot"></div>
+              <div class="w-1 h-1 bg-amber-400 rounded-full typing-dot"></div>
+              <div class="w-1 h-1 bg-amber-400 rounded-full typing-dot"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- منطقة الرسائل -->
+      <div id="chat-messages" class="flex-1 overflow-y-auto overflow-x-hidden p-3 space-y-3 custom-scrollbar text-sm relative scroll-smooth bg-slate-950/40">
+        <!-- الرسائل تظهر هنا -->
+      </div>
     </div>
 
     <div id="mention-badge" onclick="scrollToNextReply()" class="absolute bottom-[72px] left-4 z-30 hidden bg-amber-500 text-slate-950 p-2 rounded-full shadow-lg cursor-pointer hover:scale-110 transition">
@@ -353,21 +367,7 @@
       <i data-lucide="arrow-down" class="w-4 h-4"></i>
     </button>
 
-    <footer class="relative shrink-0 bg-slate-900/95 backdrop-blur p-2.5 border-t border-slate-800/80 z-20">
-      
-      <!-- شريط الكتابة الديناميكي العائم -->
-      <div id="typing-indicator" class="absolute -top-12 right-4 flex items-center transition-all duration-300 transform translate-y-4 opacity-0 pointer-events-none z-10">
-        <div class="flex items-center gap-2 bg-slate-800/90 backdrop-blur-md border border-slate-700/80 px-3 py-1.5 rounded-2xl rounded-br-none shadow-[0_0_15px_rgba(0,0,0,0.3)]">
-          <div id="typing-avatars" class="flex -space-x-1.5 space-x-reverse"></div>
-          <span id="typing-text" class="text-[10px] text-amber-400 font-bold"></span>
-          <div class="flex gap-[3px] items-center mt-0.5">
-            <div class="w-1 h-1 bg-amber-400 rounded-full typing-dot"></div>
-            <div class="w-1 h-1 bg-amber-400 rounded-full typing-dot"></div>
-            <div class="w-1 h-1 bg-amber-400 rounded-full typing-dot"></div>
-          </div>
-        </div>
-      </div>
-
+    <footer class="relative shrink-0 bg-slate-900/95 backdrop-blur p-2.5 border-t border-slate-800/80 z-30">
       <div id="reply-preview" class="hidden shrink-0 flex items-center justify-between bg-slate-950/60 p-2 mb-2 rounded-xl border border-amber-500/30">
           <div class="border-r-2 border-amber-500 pr-2 overflow-hidden flex-1">
             <p id="reply-preview-sender" class="text-amber-400 text-[10px] font-bold mb-0.5"></p>
@@ -416,7 +416,7 @@
         '🙏': 'https://cdnjs.cloudflare.com/ajax/libs/emoji-datasource-apple/14.0.0/img/apple/64/1f64f.png'
     };
 
-    // ================= الشرح التفاعلي (Tutorial) =================
+    // ================= الشرح التفاعلي =================
     document.addEventListener('DOMContentLoaded', () => {
         if(!localStorage.getItem('munqidh_tutorial_seen')) {
             const overlay = document.getElementById('tutorial-overlay');
@@ -434,7 +434,7 @@
         setTimeout(() => overlay.classList.add('hidden'), 500);
     }
 
-    // ================= دوال التحكم بالنوافذ المخصصة =================
+    // ================= دوال التحكم بالنوافذ =================
     window.uiAlert = function(title, text, type = 'info') {
         return new Promise(resolve => {
             const modal = document.getElementById('ui-alert');
@@ -521,7 +521,7 @@
         });
     };
 
-    // --- دوال التخزين المزدوج ---
+    // --- دوال التخزين ---
     function saveSessionData(user) {
         const dataString = JSON.stringify(user);
         localStorage.setItem('munqidh_user_data', dataString);
@@ -556,7 +556,7 @@
     let typingTimeout = null;
     let isTypingSent = false; 
     let isLoaderHidden = false; 
-    let lastMsgTracker = null; // للتجميع الديناميكي
+    let lastMsgTracker = null;
 
     let soundSettings = JSON.parse(localStorage.getItem('munqidh_sound_settings')) || { send: true, recv: true, reply: true };
     const loaderOverlay = document.getElementById('loading-overlay');
@@ -852,6 +852,7 @@
        if (currentUser) set(ref(db, `munqidh_typing_status/${currentUser.id}`), null);
     });
 
+    // ================= شريط الكتابة المنزلق من الأعلى =================
     onValue(typingRef, (snapshot) => {
         const indicator = document.getElementById('typing-indicator');
         const avatarsDiv = document.getElementById('typing-avatars');
@@ -877,11 +878,13 @@
             
             textSpan.innerText = text;
             
-            indicator.classList.remove('translate-y-4', 'opacity-0');
+            // انزلاق للأسفل
+            indicator.classList.remove('-translate-y-full', 'opacity-0');
             indicator.classList.add('translate-y-0', 'opacity-100');
         } else {
+            // انزلاق للأعلى (إخفاء)
             indicator.classList.remove('translate-y-0', 'opacity-100');
-            indicator.classList.add('translate-y-4', 'opacity-0');
+            indicator.classList.add('-translate-y-full', 'opacity-0');
         }
     });
 
@@ -913,7 +916,7 @@
        chatContainer.scrollTo({ top: chatContainer.scrollHeight, behavior: 'smooth' });
     }
 
-    // ================= نظام التفاعلات والديناميكية =================
+    // ================= نظام التفاعلات =================
     let activeReactionMsgId = null;
 
     window.showReactionPicker = function(msgId) {
@@ -1111,7 +1114,7 @@
       const isMe = data.userId === currentUser?.id;
       const hasModPower = ['manager', 'developer', 'moderator'].includes(currentUser?.role);
 
-      // 1. منطق تجميع الرسائل وفواصل الأيام
+      // منطق تجميع الرسائل وفواصل الأيام
       let isGrouped = false;
       let showDateSeparator = false;
 
@@ -1126,7 +1129,6 @@
           }
       }
 
-      // إضافة فاصل الأيام العائم
       if (showDateSeparator) {
           const sep = document.createElement('div');
           sep.className = 'flex justify-center my-4 w-full shrink-0 z-10';
@@ -1134,7 +1136,6 @@
           chatContainer.appendChild(sep);
       }
 
-      // 2. ذيول الفقاعات الديناميكية
       if (isGrouped) {
           const prevBubble = document.querySelector(`.message-wrapper[data-id="${lastMsgTracker.id}"] .bubble-content`);
           if (prevBubble) {
@@ -1143,7 +1144,6 @@
           }
       }
 
-      // 3. تأثير الزجاج (Glassmorphism)
       const roleStyles = {
         manager: { bg: 'bg-amber-500/10 backdrop-blur-md', border: 'border-amber-500/30', name: 'text-amber-400', badge: '👑 مدير' },
         developer: { bg: 'bg-cyan-500/10 backdrop-blur-md', border: 'border-cyan-500/30', name: 'text-cyan-400', badge: '💻 مطور' },
@@ -1152,7 +1152,6 @@
       };
       const style = roleStyles[data.role] || roleStyles['user'];
 
-      // 4. معاينة المرفقات (الروابط والصور)
       const urlRegex = /(https?:\/\/[^\s]+)/g;
       let formattedText = escapeHtml(data.text).replace(urlRegex, (url) => {
           if(url.match(/\.(jpeg|jpg|gif|png|webp)($|\?)/i)) { 
@@ -1195,8 +1194,6 @@
         </div>`;
 
       const tailClass = isMe ? 'rounded-tl-none' : 'rounded-tr-none';
-      
-      // 5. مؤشرات القراءة
       const readReceipt = isMe ? `<i data-lucide="check-check" class="w-3.5 h-3.5 text-emerald-400 shrink-0"></i>` : '';
 
       const bubbleHTML = `
@@ -1234,7 +1231,6 @@
       if (window.lucide) lucide.createIcons({ root: wrapper });
     }
 
-    // دوال الحذف والتعديل المربوطة بالنوافذ المخصصة
     window.deleteMessage = async function(id) {
        const isConfirmed = await uiConfirm("تأكيد الحذف", "هل أنت متأكد من حذف هذه الرسالة بشكل نهائي؟", true);
        if(isConfirmed) {
@@ -1281,6 +1277,7 @@
         if (diffX > 10 && diffY < 30) { 
             isDragging = true;
             clearTimeout(pressTimer); 
+            // مسافة السحب المسموح بها بصرياً
             let move = Math.min(diffX, 120); 
             element.style.transform = `translateX(-${move}px)`; 
         }
@@ -1294,10 +1291,13 @@
               element.style.transition = 'transform 0.2s cubic-bezier(0.16, 1, 0.3, 1)';
               element.style.transform = `translateX(0)`;
               let diffX = startX - e.changedTouches[0].clientX;
+              
+              // مسافة السحب المطلوبة لتفعيل الرد (100 بكسل)
               if (diffX > 100) { 
                  triggerReply(data);
                  if(navigator.vibrate) navigator.vibrate(50);
               }
+              
               isDragging = false;
               setTimeout(() => element.style.transition = '', 200);
           } else {
