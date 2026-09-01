@@ -6,11 +6,9 @@
   <title>ملتقى المنصة العام</title>
 
   <script src="https://cdn.tailwindcss.com"></script>
-
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&display=swap" rel="stylesheet">
-          
   <script src="https://unpkg.com/lucide@latest"></script>
 
   <style>
@@ -22,22 +20,200 @@
       from { opacity: 0; transform: translateY(8px) scale(0.98); }
       to { opacity: 1; transform: translateY(0) scale(1); }
     }
-    .msg-animate { animation: messageSlide 0.25s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
-    .reply-swipe-anim { transition: transform 0.2s ease-out; }
-    .fade-out { opacity: 0; transform: scale(0.9); transition: all 0.3s ease-out; }
+    .msg-animate { animation: messageSlide 0.2s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+    .fade-out { opacity: 0; transform: scale(0.9); transition: all 0.2s ease-out; }
     
-    /* حركة النقاط الثلاث للكتابة */
     .typing-dot { animation: typingBounce 1.4s infinite ease-in-out both; }
     .typing-dot:nth-child(1) { animation-delay: -0.32s; }
     .typing-dot:nth-child(2) { animation-delay: -0.16s; }
     @keyframes typingBounce {
-      0%, 80%, 100% { transform: scale(0); opacity: 0.5; }
-      40% { transform: scale(1); opacity: 1; }
+      0%, 80%, 100% { transform: translateY(0); opacity: 0.4; }
+      40% { transform: translateY(-3px); opacity: 1; }
     }
+
+    /* حركات الخلفية الضوئية العائمة */
+    @keyframes floatOrb1 {
+        0% { transform: translate(0, 0) scale(1); }
+        33% { transform: translate(5vw, -5vh) scale(1.1); }
+        66% { transform: translate(-3vw, 4vh) scale(0.9); }
+        100% { transform: translate(0, 0) scale(1); }
+    }
+    @keyframes floatOrb2 {
+        0% { transform: translate(0, 0) scale(1); }
+        33% { transform: translate(-5vw, 6vh) scale(1.2); }
+        66% { transform: translate(4vw, -3vh) scale(0.8); }
+        100% { transform: translate(0, 0) scale(1); }
+    }
+    .orb-1 { animation: floatOrb1 18s ease-in-out infinite; }
+    .orb-2 { animation: floatOrb2 22s ease-in-out infinite alternate; }
+    .orb-3 { animation: floatOrb1 25s ease-in-out infinite reverse; }
+
+    /* تأثيرات التفاعلات (القلب المتطاير البطيء والناعم) */
+    @keyframes popHeart {
+        0% { transform: translate(-50%, -50%) scale(0.5); opacity: 0; }
+        15% { transform: translate(-50%, -50%) scale(1.6); opacity: 1; }
+        100% { transform: translate(-50%, -350%) scale(1); opacity: 0; }
+    }
+    .animate-pop-heart { animation: popHeart 1.8s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+
+    /* حركات الشرح التفاعلي */
+    @keyframes swipeHand {
+        0% { transform: translateX(0) scale(1); opacity: 0; }
+        20% { transform: translateX(0) scale(1); opacity: 1; }
+        70% { transform: translateX(-40px) scale(0.95); opacity: 1; }
+        100% { transform: translateX(-40px) scale(0.95); opacity: 0; }
+    }
+    .animate-swipe-hand { animation: swipeHand 2s infinite ease-in-out; }
+
+    /* تأثيرات الحذف النارية */
+    @keyframes hellPulse {
+        0% { transform: scale(1); filter: brightness(1); }
+        50% { transform: scale(1.03); filter: brightness(1.3); }
+        100% { transform: scale(1); filter: brightness(1); }
+    }
+    .hell-gradient {
+        background: radial-gradient(circle at bottom, #991b1b 0%, #450a0a 50%, #000000 100%);
+        animation: hellPulse 0.6s infinite alternate;
+    }
+    @keyframes screenShake {
+        0% { transform: translate(3px, 2px) rotate(0deg); }
+        10% { transform: translate(-2px, -3px) rotate(-1deg); }
+        20% { transform: translate(-4px, 0px) rotate(1deg); }
+        30% { transform: translate(0px, 3px) rotate(0deg); }
+        40% { transform: translate(2px, -2px) rotate(1deg); }
+        50% { transform: translate(-2px, 3px) rotate(-1deg); }
+        60% { transform: translate(-4px, 2px) rotate(0deg); }
+        70% { transform: translate(3px, 2px) rotate(-1deg); }
+        80% { transform: translate(-2px, -2px) rotate(1deg); }
+        90% { transform: translate(3px, 3px) rotate(0deg); }
+        100% { transform: translate(2px, -3px) rotate(-1deg); }
+    }
+    .shake-active { animation: screenShake 0.3s infinite; }
   </style>
 </head>
-<body class="bg-slate-950 text-slate-100 h-[100dvh] w-full overflow-hidden selection:bg-amber-500 selection:text-slate-950 flex items-center justify-center p-0 md:p-3">
+<body class="bg-slate-950 text-slate-100 h-[100dvh] w-full overflow-hidden selection:bg-amber-500 selection:text-slate-950 flex items-center justify-center p-0 md:p-3 transition-all duration-300 relative">
 
+  <!-- الخلفية المتحركة (Ambient Background) -->
+  <div class="fixed inset-0 overflow-hidden pointer-events-none z-0">
+    <div class="absolute top-[-10%] left-[-10%] w-[70vw] h-[70vw] md:w-[40vw] md:h-[40vw] bg-amber-500/20 rounded-full blur-[100px] orb-1"></div>
+    <div class="absolute bottom-[-10%] right-[-10%] w-[70vw] h-[70vw] md:w-[40vw] md:h-[40vw] bg-emerald-500/15 rounded-full blur-[100px] orb-2"></div>
+    <div class="absolute top-[30%] left-[20%] w-[60vw] h-[60vw] md:w-[30vw] md:h-[30vw] bg-blue-500/15 rounded-full blur-[100px] orb-3"></div>
+  </div>
+
+  <!-- شاشة الشرح التفاعلية (Tutorial Onboarding) -->
+  <div id="tutorial-overlay" class="fixed inset-0 z-[250] hidden bg-slate-950/80 backdrop-blur-md flex items-center justify-center p-4 opacity-0 transition-opacity duration-500">
+    <div class="bg-slate-900 border border-slate-700/80 rounded-3xl p-6 w-full max-w-sm shadow-[0_0_50px_rgba(245,158,11,0.15)] text-center relative overflow-hidden">
+        <div class="absolute -top-10 -right-10 w-32 h-32 bg-amber-500/10 rounded-full blur-2xl pointer-events-none"></div>
+        
+        <h2 class="text-xl font-black text-slate-100 mb-2 drop-shadow-md">كيف تتفاعل؟</h2>
+        <p class="text-xs text-slate-400 mb-6">جرب الميزات الجديدة لجعل المحادثة أكثر متعة!</p>
+
+        <div class="space-y-4 mb-8">
+            <div class="flex items-center gap-4 bg-slate-950/50 p-3 rounded-2xl border border-slate-800">
+                <div class="w-12 h-12 bg-emerald-500/20 text-emerald-400 rounded-xl flex items-center justify-center shrink-0 border border-emerald-500/30">
+                    <i data-lucide="hand" class="w-6 h-6 animate-swipe-hand"></i>
+                </div>
+                <div class="text-right">
+                    <h4 class="text-sm font-bold text-slate-200">اسحب للرد</h4>
+                    <p class="text-[10px] text-slate-400">اسحب أي رسالة من اليمين لليسار</p>
+                </div>
+            </div>
+            
+            <div class="flex items-center gap-4 bg-slate-950/50 p-3 rounded-2xl border border-slate-800">
+                <div class="w-12 h-12 bg-red-500/20 text-red-400 rounded-xl flex items-center justify-center shrink-0 border border-red-500/30">
+                    <i data-lucide="heart" class="w-6 h-6 animate-pulse"></i>
+                </div>
+                <div class="text-right">
+                    <h4 class="text-sm font-bold text-slate-200">انقر مرتين للإعجاب</h4>
+                    <p class="text-[10px] text-slate-400">نقر مزدوج سريع لإضافة إعجاب ❤️</p>
+                </div>
+            </div>
+
+            <div class="flex items-center gap-4 bg-slate-950/50 p-3 rounded-2xl border border-slate-800">
+                <div class="w-12 h-12 bg-blue-500/20 text-blue-400 rounded-xl flex items-center justify-center shrink-0 border border-blue-500/30">
+                    <i data-lucide="smile" class="w-6 h-6"></i>
+                </div>
+                <div class="text-right">
+                    <h4 class="text-sm font-bold text-slate-200">اضغط مطولاً</h4>
+                    <p class="text-[10px] text-slate-400">لإظهار قائمة الإيموجيات للتفاعل</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="flex flex-col gap-2.5">
+            <button onclick="dismissTutorial(false)" class="w-full bg-amber-500 hover:bg-amber-600 text-slate-950 text-xs font-black py-3 rounded-xl transition active:scale-95 shadow-lg shadow-amber-500/20">حسناً، فهمت</button>
+            <button onclick="dismissTutorial(true)" class="w-full bg-slate-800 hover:bg-slate-700 text-slate-400 hover:text-slate-200 text-xs font-bold py-2.5 rounded-xl transition border border-slate-700">تخطي، لا تظهر مجدداً</button>
+        </div>
+    </div>
+  </div>
+
+  <!-- قائمة اختيار التفاعلات (Reaction Picker) -->
+  <div id="reaction-picker" class="fixed inset-0 z-[150] hidden items-center justify-center bg-slate-950/20 backdrop-blur-[2px]" onclick="closeReactionPicker()">
+      <div id="reaction-picker-box" class="bg-slate-800 border border-slate-700 rounded-full px-4 py-3 flex gap-3.5 shadow-2xl transform scale-95 transition-transform duration-200 shadow-amber-500/10" onclick="event.stopPropagation()">
+          <button onclick="pickReaction('❤️', event)" class="w-8 h-8 hover:scale-125 transition-transform active:scale-90"><img src="https://cdnjs.cloudflare.com/ajax/libs/emoji-datasource-apple/14.0.0/img/apple/64/2764-fe0f.png" class="w-full h-full object-contain drop-shadow-sm pointer-events-none"></button>
+          <button onclick="pickReaction('😂', event)" class="w-8 h-8 hover:scale-125 transition-transform active:scale-90"><img src="https://cdnjs.cloudflare.com/ajax/libs/emoji-datasource-apple/14.0.0/img/apple/64/1f602.png" class="w-full h-full object-contain drop-shadow-sm pointer-events-none"></button>
+          <button onclick="pickReaction('👍', event)" class="w-8 h-8 hover:scale-125 transition-transform active:scale-90"><img src="https://cdnjs.cloudflare.com/ajax/libs/emoji-datasource-apple/14.0.0/img/apple/64/1f44d.png" class="w-full h-full object-contain drop-shadow-sm pointer-events-none"></button>
+          <button onclick="pickReaction('😮', event)" class="w-8 h-8 hover:scale-125 transition-transform active:scale-90"><img src="https://cdnjs.cloudflare.com/ajax/libs/emoji-datasource-apple/14.0.0/img/apple/64/1f62e.png" class="w-full h-full object-contain drop-shadow-sm pointer-events-none"></button>
+          <button onclick="pickReaction('😢', event)" class="w-8 h-8 hover:scale-125 transition-transform active:scale-90"><img src="https://cdnjs.cloudflare.com/ajax/libs/emoji-datasource-apple/14.0.0/img/apple/64/1f622.png" class="w-full h-full object-contain drop-shadow-sm pointer-events-none"></button>
+          <button onclick="pickReaction('🙏', event)" class="w-8 h-8 hover:scale-125 transition-transform active:scale-90"><img src="https://cdnjs.cloudflare.com/ajax/libs/emoji-datasource-apple/14.0.0/img/apple/64/1f64f.png" class="w-full h-full object-contain drop-shadow-sm pointer-events-none"></button>
+      </div>
+  </div>
+
+  <!-- نظام النوافذ المخصصة (Modals System) -->
+  <div id="ui-alert" class="fixed inset-0 z-[200] hidden bg-slate-950/80 backdrop-blur-md flex items-center justify-center p-4 opacity-0 transition-all duration-300">
+    <div id="ui-alert-box" class="bg-slate-900 border border-slate-700/80 rounded-3xl p-6 w-full max-w-sm shadow-[0_0_40px_rgba(0,0,0,0.5)] transform scale-95 transition-transform duration-300 text-center">
+        <div id="ui-alert-icon" class="w-14 h-14 mx-auto mb-4 rounded-2xl flex items-center justify-center"></div>
+        <h3 id="ui-alert-title" class="text-base font-black text-slate-100 mb-2"></h3>
+        <p id="ui-alert-text" class="text-sm text-slate-400 mb-6 leading-relaxed"></p>
+        <button id="ui-alert-btn" class="w-full bg-slate-800 hover:bg-slate-700 text-white text-xs font-bold py-3 rounded-xl transition active:scale-95 border border-slate-600">حسناً</button>
+    </div>
+  </div>
+
+  <div id="ui-confirm" class="fixed inset-0 z-[200] hidden bg-slate-950/80 backdrop-blur-md flex items-center justify-center p-4 opacity-0 transition-all duration-300">
+    <div id="ui-confirm-box" class="bg-slate-900 border border-slate-700/80 rounded-3xl p-6 w-full max-w-sm shadow-[0_0_40px_rgba(0,0,0,0.5)] transform scale-95 transition-transform duration-300">
+        <div class="flex items-center gap-3 mb-3">
+            <div id="ui-confirm-icon-bg" class="w-10 h-10 rounded-xl flex items-center justify-center shrink-0">
+                <i data-lucide="alert-triangle" id="ui-confirm-icon" class="w-5 h-5"></i>
+            </div>
+            <h3 id="ui-confirm-title" class="text-base font-black text-slate-100"></h3>
+        </div>
+        <p id="ui-confirm-text" class="text-sm text-slate-400 mb-6 leading-relaxed"></p>
+        <div class="flex gap-2">
+            <button id="ui-confirm-cancel" class="flex-1 bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-bold py-3 rounded-xl transition active:scale-95 border border-slate-700">إلغاء</button>
+            <button id="ui-confirm-ok" class="flex-1 text-white text-xs font-bold py-3 rounded-xl transition active:scale-95 border shadow-lg"></button>
+        </div>
+    </div>
+  </div>
+
+  <div id="ui-prompt" class="fixed inset-0 z-[200] hidden bg-slate-950/80 backdrop-blur-md flex items-center justify-center p-4 opacity-0 transition-all duration-300">
+    <div id="ui-prompt-box" class="bg-slate-900 border border-slate-700/80 rounded-3xl p-6 w-full max-w-sm shadow-[0_0_40px_rgba(0,0,0,0.5)] transform scale-95 transition-transform duration-300">
+        <div class="flex items-center gap-3 mb-4">
+            <div class="w-10 h-10 bg-amber-500/20 text-amber-500 rounded-xl flex items-center justify-center border border-amber-500/30 shrink-0">
+                <i data-lucide="edit-3" class="w-5 h-5"></i>
+            </div>
+            <h3 id="ui-prompt-title" class="text-base font-black text-slate-100">تعديل الرسالة</h3>
+        </div>
+        <textarea id="ui-prompt-input" class="w-full bg-slate-950/80 border border-slate-700 rounded-xl px-4 py-3 text-sm text-slate-100 focus:border-amber-500 focus:ring-1 focus:ring-amber-500/50 outline-none min-h-[100px] custom-scrollbar mb-5 shadow-inner" placeholder="اكتب التعديل هنا..."></textarea>
+        <div class="flex gap-2">
+            <button id="ui-prompt-cancel" class="flex-1 bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-bold py-3 rounded-xl transition active:scale-95 border border-slate-700">إلغاء</button>
+            <button id="ui-prompt-ok" class="flex-1 bg-amber-500 hover:bg-amber-600 text-slate-950 text-xs font-black py-3 rounded-xl transition active:scale-95 shadow-lg shadow-amber-500/20">حفظ التعديل</button>
+        </div>
+    </div>
+  </div>
+
+  <!-- شاشة الحرق النارية -->
+  <div id="hell-fire-overlay" class="fixed inset-0 z-[100] hidden flex-col items-center justify-center overflow-hidden hell-gradient transition-opacity duration-300 opacity-0 pointer-events-none">
+    <div class="relative z-10 flex flex-col items-center text-center px-4">
+        <i data-lucide="flame" class="w-32 h-32 text-orange-500 mb-2 animate-bounce drop-shadow-[0_0_25px_rgba(249,115,22,1)]"></i>
+        <h2 class="text-3xl md:text-5xl font-black text-white mb-2 drop-shadow-[0_0_15px_rgba(220,38,38,1)]">جاري تدمير البيانات...</h2>
+        <div id="nuke-counter" class="text-8xl md:text-9xl font-black text-yellow-400 drop-shadow-[0_0_30px_rgba(239,68,68,1)]">0%</div>
+        <p class="mt-8 text-red-200 font-bold text-sm bg-black/60 px-5 py-2.5 rounded-full border border-red-500/50 shadow-[0_0_15px_rgba(220,38,38,0.5)]">
+            يتم إرسال جميع الرسائل والصور إلى جهنم 🔥
+        </p>
+    </div>
+  </div>
+
+  <!-- شاشة تسجيل الدخول -->
   <div id="login-modal" class="fixed inset-0 z-50 bg-slate-950/95 backdrop-blur-md flex items-center justify-center p-4">
     <div class="bg-slate-900 border border-slate-800 rounded-3xl p-5 w-full max-w-sm shadow-2xl shadow-amber-500/10 max-h-[85vh] overflow-y-auto custom-scrollbar">
       <div class="w-14 h-14 bg-amber-500/20 text-amber-500 rounded-2xl flex items-center justify-center mx-auto mb-3 border border-amber-500/30">
@@ -53,7 +229,7 @@
         </div>
         
         <div>
-          <label class="block text-[11px] font-bold text-slate-400 mb-1">الصورة الشخصية (من الاستوديو)</label>
+          <label class="block text-[11px] font-bold text-slate-400 mb-1">الصورة الشخصية (يُفضل صورة صغيرة)</label>
           <label for="reg-file-input" class="flex items-center justify-center gap-2 w-full bg-slate-950 border border-dashed border-slate-700 hover:border-amber-500 rounded-xl px-3.5 py-2.5 text-slate-300 cursor-pointer transition text-[11px] font-bold">
             <i data-lucide="image-plus" class="w-4 h-4 text-amber-500"></i>
             <span id="file-name-label" class="truncate">اختر صورة من جهازك...</span>
@@ -68,8 +244,8 @@
       </div>
       
       <div class="mt-6 flex gap-2.5">
-        <button onclick="saveProfile()" class="flex-1 bg-amber-500 hover:bg-amber-600 text-slate-950 text-xs font-extrabold py-2.5 rounded-xl transition">حفظ وبدء</button>
-        <button onclick="skipProfile()" class="flex-1 bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-bold py-2.5 rounded-xl transition">تخطي كطالب</button>
+        <button id="save-profile-btn" onclick="saveProfile()" class="flex-1 bg-amber-500 hover:bg-amber-600 text-slate-950 text-xs font-extrabold py-2.5 rounded-xl transition flex items-center justify-center gap-2">حفظ وبدء</button>
+        <button id="skip-profile-btn" onclick="skipProfile()" class="flex-1 bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-bold py-2.5 rounded-xl transition">تخطي كطالب</button>
       </div>
     </div>
   </div>
@@ -114,23 +290,26 @@
           <i data-lucide="trash" class="w-4 h-4"></i> حذف نشاطي (حذف كل رسائلي)
         </button>
         <button onclick="deleteAccount()" class="w-full flex items-center justify-center gap-2 bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-bold py-2.5 rounded-xl transition">
-          <i data-lucide="user-x" class="w-4 h-4"></i> حذف الحساب وتسجيل الخروج
+          <i data-lucide="user-x" class="w-4 h-4"></i> تسجيل الخروج من الجهاز
+        </button>
+        
+        <button id="admin-nuke-btn" onclick="nukeDatabase()" class="hidden w-full flex items-center justify-center gap-2 bg-gradient-to-r from-red-700 to-orange-600 hover:from-red-600 hover:to-orange-500 text-white border border-red-500/50 text-xs font-black py-2.5 rounded-xl transition mt-2 shadow-[0_0_15px_rgba(220,38,38,0.3)]">
+          <i data-lucide="flame" class="w-4 h-4"></i> جميع البيانات الى جهنم
         </button>
       </div>
     </div>
   </div>
 
-  <main class="w-full max-w-sm md:max-w-md h-full md:h-[90dvh] flex flex-col bg-slate-900/90 md:rounded-3xl shadow-2xl border border-slate-800/80 relative overflow-hidden">
+  <main class="w-full max-w-sm md:max-w-md h-full md:h-[90dvh] flex flex-col bg-slate-900/90 md:rounded-3xl shadow-2xl border border-slate-800/80 relative overflow-hidden z-10">
     
-    <div id="loading-overlay" class="absolute inset-0 z-40 bg-slate-950/95 backdrop-blur-sm flex flex-col items-center justify-center transition-opacity duration-500">
+    <div id="loading-overlay" class="absolute inset-0 z-40 bg-slate-950/95 backdrop-blur-sm flex flex-col items-center justify-center transition-opacity duration-300">
       <div class="w-12 h-12 border-4 border-slate-700 border-t-amber-500 rounded-full animate-spin mb-4 shadow-lg shadow-amber-500/20"></div>
-      <h2 class="text-sm font-extrabold text-slate-100 mb-1">جاري فتح الملتقى...</h2>
-      <p class="text-[11px] text-slate-400">يرجى الانتظار، يتم جلب الرسائل</p>
+      <h2 class="text-sm font-extrabold text-slate-100 mb-1">جاري الاتصال...</h2>
       
-      <div id="weak-net-warning" class="mt-6 flex flex-col items-center opacity-0 hidden transition-all duration-500 transform translate-y-4">
-         <div class="bg-red-500/10 border border-red-500/30 text-red-400 px-4 py-2.5 rounded-xl text-xs font-bold flex items-center gap-2 shadow-inner">
-           <i data-lucide="wifi-off" class="w-4 h-4"></i>
-           <span>يبدو أن اتصالك بالإنترنت ضعيف، يرجى الانتظار...</span>
+      <div id="weak-net-warning" class="mt-6 flex flex-col items-center opacity-0 hidden transition-all duration-300 transform translate-y-4">
+         <div class="bg-red-500/10 border border-red-500/30 text-red-400 px-4 py-2.5 rounded-xl text-xs font-bold flex items-center gap-2 shadow-inner text-center">
+           <i data-lucide="wifi-off" class="w-4 h-4 shrink-0"></i>
+           <span>الاتصال بطيء جداً أو هناك مشكلة في قاعدة البيانات.</span>
          </div>
       </div>
     </div>
@@ -160,39 +339,35 @@
       </button>
     </header>
 
+    <!-- منطقة الرسائل -->
     <div id="chat-messages" class="flex-1 overflow-y-auto overflow-x-hidden p-3 space-y-3 custom-scrollbar text-sm relative scroll-smooth bg-slate-950/40">
-      <div class="bg-amber-500/10 border border-amber-500/20 rounded-2xl p-2.5 text-[11px] text-amber-300/90 text-center mx-auto w-11/12 shadow-sm mb-4">
-        👋 مرحباً بك! (اسحب الرسالة للرد، اضغط على صورة أي شخص لعرض حسابه)
-      </div>
+      <!-- الرسائل تظهر هنا -->
     </div>
 
-    <!-- ميزة: جاري الكتابة... (تم النقل إلى اليمين - right-4) -->
-    <div id="typing-indicator" class="absolute bottom-[72px] right-4 z-30 flex items-center gap-2 bg-slate-900/95 backdrop-blur-md border border-amber-500/30 rounded-full px-3 py-1.5 shadow-lg shadow-black/50 opacity-0 pointer-events-none transition-all duration-300 translate-y-4">
-      <div id="typing-avatars" class="flex -space-x-2 space-x-reverse">
-        <!-- الصور ستضاف هنا برمجياً -->
-      </div>
-      <div class="flex items-center gap-1.5">
-        <span id="typing-text" class="text-[10px] text-slate-200 font-bold mt-0.5"></span>
-        <div class="flex gap-[2px] items-center mt-1">
-          <div class="w-1 h-1 bg-amber-400 rounded-full typing-dot"></div>
-          <div class="w-1 h-1 bg-amber-400 rounded-full typing-dot"></div>
-          <div class="w-1 h-1 bg-amber-400 rounded-full typing-dot"></div>
-        </div>
-      </div>
-    </div>
-
-    <!-- زر المنشن (تم النقل إلى اليسار - left-4 حتى لا يتداخل مع جاري الكتابة) -->
     <div id="mention-badge" onclick="scrollToNextReply()" class="absolute bottom-[72px] left-4 z-30 hidden bg-amber-500 text-slate-950 p-2 rounded-full shadow-lg cursor-pointer hover:scale-110 transition">
       <i data-lucide="at-sign" class="w-4 h-4"></i>
       <span id="mention-count" class="absolute -top-1 -right-1 bg-red-500 text-white text-[9px] font-black w-4 h-4 rounded-full flex items-center justify-center border-2 border-slate-900 shadow-md">1</span>
     </div>
 
-    <!-- زر النزول للأسفل: على اليسار ومرتفع قليلاً لتجنب التداخل -->
     <button id="scroll-bottom-btn" onclick="scrollToBottom()" class="absolute bottom-[115px] left-4 z-30 hidden bg-slate-800/90 border border-slate-700 text-slate-200 p-2 rounded-full shadow-xl hover:bg-slate-700 transition backdrop-blur-md">
       <i data-lucide="arrow-down" class="w-4 h-4"></i>
     </button>
 
-    <footer class="shrink-0 bg-slate-900/95 backdrop-blur p-2.5 border-t border-slate-800/80 z-20">
+    <footer class="relative shrink-0 bg-slate-900/95 backdrop-blur p-2.5 border-t border-slate-800/80 z-20">
+      
+      <!-- شريط الكتابة الديناميكي العائم -->
+      <div id="typing-indicator" class="absolute -top-12 right-4 flex items-center transition-all duration-300 transform translate-y-4 opacity-0 pointer-events-none z-10">
+        <div class="flex items-center gap-2 bg-slate-800/90 backdrop-blur-md border border-slate-700/80 px-3 py-1.5 rounded-2xl rounded-br-none shadow-[0_0_15px_rgba(0,0,0,0.3)]">
+          <div id="typing-avatars" class="flex -space-x-1.5 space-x-reverse"></div>
+          <span id="typing-text" class="text-[10px] text-amber-400 font-bold"></span>
+          <div class="flex gap-[3px] items-center mt-0.5">
+            <div class="w-1 h-1 bg-amber-400 rounded-full typing-dot"></div>
+            <div class="w-1 h-1 bg-amber-400 rounded-full typing-dot"></div>
+            <div class="w-1 h-1 bg-amber-400 rounded-full typing-dot"></div>
+          </div>
+        </div>
+      </div>
+
       <div id="reply-preview" class="hidden shrink-0 flex items-center justify-between bg-slate-950/60 p-2 mb-2 rounded-xl border border-amber-500/30">
           <div class="border-r-2 border-amber-500 pr-2 overflow-hidden flex-1">
             <p id="reply-preview-sender" class="text-amber-400 text-[10px] font-bold mb-0.5"></p>
@@ -229,22 +404,166 @@
     const db = getDatabase(app);
     const chatRef = ref(db, 'munqidh_live_chat_v3');
     const typingRef = ref(db, 'munqidh_typing_status');
-    
-    const recentChatsQuery = query(chatRef, orderByChild('timestamp'), limitToLast(50));
+    const recentChatsQuery = query(chatRef, orderByChild('timestamp'), limitToLast(40));
 
-    let currentUser = JSON.parse(localStorage.getItem('munqidh_user_data'));
-    let selectedImageBase64 = null;
-    let typingTimeout = null;
-
-    let soundSettings = JSON.parse(localStorage.getItem('munqidh_sound_settings')) || {
-       send: true, recv: true, reply: true
+    // ================= قاموس إيموجيات iOS الأصلية =================
+    const iosEmojis = {
+        '❤️': 'https://cdnjs.cloudflare.com/ajax/libs/emoji-datasource-apple/14.0.0/img/apple/64/2764-fe0f.png',
+        '😂': 'https://cdnjs.cloudflare.com/ajax/libs/emoji-datasource-apple/14.0.0/img/apple/64/1f602.png',
+        '👍': 'https://cdnjs.cloudflare.com/ajax/libs/emoji-datasource-apple/14.0.0/img/apple/64/1f44d.png',
+        '😮': 'https://cdnjs.cloudflare.com/ajax/libs/emoji-datasource-apple/14.0.0/img/apple/64/1f62e.png',
+        '😢': 'https://cdnjs.cloudflare.com/ajax/libs/emoji-datasource-apple/14.0.0/img/apple/64/1f622.png',
+        '🙏': 'https://cdnjs.cloudflare.com/ajax/libs/emoji-datasource-apple/14.0.0/img/apple/64/1f64f.png'
     };
 
+    // ================= الشرح التفاعلي (Tutorial) =================
+    document.addEventListener('DOMContentLoaded', () => {
+        if(!localStorage.getItem('munqidh_tutorial_seen')) {
+            const overlay = document.getElementById('tutorial-overlay');
+            overlay.classList.remove('hidden');
+            setTimeout(() => overlay.classList.remove('opacity-0'), 50);
+        }
+    });
+
+    window.dismissTutorial = function(dontShowAgain) {
+        if(dontShowAgain) {
+            localStorage.setItem('munqidh_tutorial_seen', 'true');
+        }
+        const overlay = document.getElementById('tutorial-overlay');
+        overlay.classList.add('opacity-0');
+        setTimeout(() => overlay.classList.add('hidden'), 500);
+    }
+
+    // ================= دوال التحكم بالنوافذ المخصصة =================
+    window.uiAlert = function(title, text, type = 'info') {
+        return new Promise(resolve => {
+            const modal = document.getElementById('ui-alert');
+            const box = document.getElementById('ui-alert-box');
+            const iconBox = document.getElementById('ui-alert-icon');
+            
+            document.getElementById('ui-alert-title').innerText = title;
+            document.getElementById('ui-alert-text').innerText = text;
+
+            if (type === 'success') {
+                iconBox.className = 'w-14 h-14 mx-auto mb-4 rounded-2xl flex items-center justify-center bg-emerald-500/20 text-emerald-400 border border-emerald-500/30';
+                iconBox.innerHTML = '<i data-lucide="check-circle" class="w-7 h-7"></i>';
+            } else if (type === 'error') {
+                iconBox.className = 'w-14 h-14 mx-auto mb-4 rounded-2xl flex items-center justify-center bg-red-500/20 text-red-400 border border-red-500/30';
+                iconBox.innerHTML = '<i data-lucide="x-circle" class="w-7 h-7"></i>';
+            } else {
+                iconBox.className = 'w-14 h-14 mx-auto mb-4 rounded-2xl flex items-center justify-center bg-amber-500/20 text-amber-500 border border-amber-500/30';
+                iconBox.innerHTML = '<i data-lucide="info" class="w-7 h-7"></i>';
+            }
+            if(window.lucide) lucide.createIcons({root: iconBox});
+
+            modal.classList.remove('hidden');
+            setTimeout(() => { modal.classList.remove('opacity-0'); box.classList.remove('scale-95'); }, 10);
+
+            document.getElementById('ui-alert-btn').onclick = () => {
+                modal.classList.add('opacity-0'); box.classList.add('scale-95');
+                setTimeout(() => { modal.classList.add('hidden'); resolve(); }, 300);
+            };
+        });
+    };
+
+    window.uiConfirm = function(title, text, isDanger = false) {
+        return new Promise(resolve => {
+            const modal = document.getElementById('ui-confirm');
+            const box = document.getElementById('ui-confirm-box');
+            const iconBg = document.getElementById('ui-confirm-icon-bg');
+            const okBtn = document.getElementById('ui-confirm-ok');
+
+            document.getElementById('ui-confirm-title').innerText = title;
+            document.getElementById('ui-confirm-text').innerText = text;
+
+            if (isDanger) {
+                iconBg.className = 'w-10 h-10 rounded-xl flex items-center justify-center shrink-0 bg-red-500/20 text-red-500 border border-red-500/30';
+                okBtn.className = 'flex-1 bg-red-500 hover:bg-red-600 text-white text-xs font-black py-3 rounded-xl transition active:scale-95 shadow-lg shadow-red-500/20 border border-red-600';
+                okBtn.innerText = 'نعم، متأكد';
+            } else {
+                iconBg.className = 'w-10 h-10 rounded-xl flex items-center justify-center shrink-0 bg-amber-500/20 text-amber-500 border border-amber-500/30';
+                okBtn.className = 'flex-1 bg-amber-500 hover:bg-amber-600 text-slate-900 text-xs font-black py-3 rounded-xl transition active:scale-95 shadow-lg shadow-amber-500/20 border border-amber-600';
+                okBtn.innerText = 'موافق';
+            }
+
+            modal.classList.remove('hidden');
+            setTimeout(() => { modal.classList.remove('opacity-0'); box.classList.remove('scale-95'); }, 10);
+
+            const close = (val) => {
+                modal.classList.add('opacity-0'); box.classList.add('scale-95');
+                setTimeout(() => { modal.classList.add('hidden'); resolve(val); }, 300);
+            };
+
+            document.getElementById('ui-confirm-cancel').onclick = () => close(false);
+            okBtn.onclick = () => close(true);
+        });
+    };
+
+    window.uiPrompt = function(title, defaultValue) {
+        return new Promise(resolve => {
+            const modal = document.getElementById('ui-prompt');
+            const box = document.getElementById('ui-prompt-box');
+            const input = document.getElementById('ui-prompt-input');
+
+            document.getElementById('ui-prompt-title').innerText = title;
+            input.value = defaultValue;
+
+            modal.classList.remove('hidden');
+            setTimeout(() => { modal.classList.remove('opacity-0'); box.classList.remove('scale-95'); input.focus(); }, 10);
+
+            const close = (val) => {
+                modal.classList.add('opacity-0'); box.classList.add('scale-95');
+                setTimeout(() => { modal.classList.add('hidden'); resolve(val); }, 300);
+            };
+
+            document.getElementById('ui-prompt-cancel').onclick = () => close(null);
+            document.getElementById('ui-prompt-ok').onclick = () => close(input.value);
+        });
+    };
+
+    // --- دوال التخزين المزدوج ---
+    function saveSessionData(user) {
+        const dataString = JSON.stringify(user);
+        localStorage.setItem('munqidh_user_data', dataString);
+        document.cookie = `munqidh_user_data=${encodeURIComponent(dataString)}; max-age=31536000; path=/;`; 
+    }
+
+    function loadSessionData() {
+        let data = localStorage.getItem('munqidh_user_data');
+        if (data) return JSON.parse(data);
+
+        const name = "munqidh_user_data=";
+        const decodedCookie = decodeURIComponent(document.cookie);
+        const ca = decodedCookie.split(';');
+        for(let i = 0; i < ca.length; i++) {
+            let c = ca[i].trim();
+            if (c.indexOf(name) === 0) {
+                const cookieData = c.substring(name.length, c.length);
+                localStorage.setItem('munqidh_user_data', cookieData); 
+                return JSON.parse(cookieData);
+            }
+        }
+        return null; 
+    }
+
+    function clearSessionData() {
+        localStorage.removeItem('munqidh_user_data');
+        document.cookie = "munqidh_user_data=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;"; 
+    }
+
+    let currentUser = loadSessionData(); 
+    let selectedImageBase64 = null;
+    let typingTimeout = null;
+    let isTypingSent = false; 
+    let isLoaderHidden = false; 
+    let lastMsgTracker = null; // للتجميع الديناميكي
+
+    let soundSettings = JSON.parse(localStorage.getItem('munqidh_sound_settings')) || { send: true, recv: true, reply: true };
     const loaderOverlay = document.getElementById('loading-overlay');
     const weakNetWarning = document.getElementById('weak-net-warning');
     
     const loadingTimeout = setTimeout(() => {
-        if (weakNetWarning && loaderOverlay && !loaderOverlay.classList.contains('hidden')) {
+        if (!isLoaderHidden && weakNetWarning && loaderOverlay && !loaderOverlay.classList.contains('hidden')) {
             weakNetWarning.classList.remove('hidden');
             setTimeout(() => {
                 weakNetWarning.classList.remove('opacity-0', 'translate-y-4');
@@ -252,27 +571,29 @@
             }, 50);
             if (window.lucide) lucide.createIcons({ root: weakNetWarning });
         }
-    }, 12000);
+    }, 8000);
 
-    function hideLoader() {
+    function hideLoaderQuickly() {
+        if (isLoaderHidden) return;
+        isLoaderHidden = true;
         clearTimeout(loadingTimeout);
         if (loaderOverlay) {
             loaderOverlay.classList.add('opacity-0');
             setTimeout(() => {
                 loaderOverlay.classList.add('hidden');
                 scrollToBottom();
-            }, 500);
+            }, 300);
         }
     }
 
-    onValue(recentChatsQuery, (snapshot) => { hideLoader(); }, { onlyOnce: true });
-    setTimeout(hideLoader, 20000); 
+    onValue(recentChatsQuery, () => { hideLoaderQuickly(); }, { onlyOnce: true });
+    setTimeout(hideLoaderQuickly, 10000);
 
     if (currentUser) {
        document.getElementById('login-modal').classList.add('hidden');
        setupPresence();
     } else {
-       hideLoader();
+       hideLoaderQuickly();
     }
 
     document.getElementById('snd-send-toggle').checked = soundSettings.send;
@@ -290,8 +611,17 @@
 
     window.openSettingsModal = function() {
        const modal = document.getElementById('settings-modal');
+       const nukeBtn = document.getElementById('admin-nuke-btn');
+       
+       if (currentUser && ['manager', 'developer', 'moderator'].includes(currentUser.role)) {
+           nukeBtn.classList.remove('hidden');
+       } else {
+           nukeBtn.classList.add('hidden');
+       }
+
        modal.classList.remove('hidden');
        setTimeout(() => modal.classList.remove('opacity-0'), 10);
+       if (window.lucide) lucide.createIcons({ root: modal });
     };
 
     window.closeSettingsModal = function() {
@@ -301,7 +631,10 @@
     };
 
     window.clearMyActivity = async function() {
-       if(!confirm('هل أنت متأكد من حذف جميع رسائلك النشطة في الدردشة؟')) return;
+       const isConfirmed = await uiConfirm("تأكيد الحذف", "هل أنت متأكد من حذف جميع رسائلك النشطة في الدردشة بصورة نهائية؟", true);
+       if(!isConfirmed) return;
+
+       closeSettingsModal();
        const snapshot = await get(chatRef);
        if(snapshot.exists()) {
           const updates = {};
@@ -312,14 +645,69 @@
              }
           });
           await update(chatRef, updates);
-          alert('تم حذف نشاطك بنجاح.');
-          closeSettingsModal();
+          await uiAlert("تم الحذف", "تم حذف جميع رسائلك من الدردشة بنجاح.", "success");
        }
     };
 
-    window.deleteAccount = function() {
-       if(!confirm('هل تريد حقاً حذف حسابك من هذا الجهاز؟')) return;
-       localStorage.removeItem('munqidh_user_data');
+    window.nukeDatabase = async function() {
+        const isConfirmed = await uiConfirm(
+            "🔥 تحذير خطير جداً! 🔥", 
+            "هل أنت متأكد من إرسال جميع رسائل وصور الدردشة إلى جهنم؟\nلا يمكن التراجع عن هذا الإجراء أبداً!", 
+            true
+        );
+        if(!isConfirmed) return;
+        
+        closeSettingsModal();
+        
+        const overlay = document.getElementById('hell-fire-overlay');
+        const counterElem = document.getElementById('nuke-counter');
+        const chatContainer = document.getElementById('chat-messages');
+        
+        overlay.classList.remove('hidden');
+        document.body.classList.add('shake-active');
+        if (window.lucide) lucide.createIcons({ root: overlay });
+
+        setTimeout(() => { overlay.classList.remove('opacity-0'); overlay.classList.add('pointer-events-auto'); }, 50);
+
+        let progress = 1;
+        counterElem.innerText = progress + '%';
+        
+        const interval = setInterval(async () => {
+            progress += Math.floor(Math.random() * 6) + 2; 
+            if(progress >= 99) progress = 99; 
+            
+            counterElem.innerText = progress + '%';
+            
+            if (progress === 99) {
+                clearInterval(interval);
+                try {
+                    await remove(chatRef); 
+                    
+                    progress = 100;
+                    counterElem.innerText = '100%';
+                    
+                    setTimeout(() => {
+                        document.body.classList.remove('shake-active');
+                        overlay.classList.add('opacity-0', 'pointer-events-none');
+                        setTimeout(() => overlay.classList.add('hidden'), 500);
+                        
+                        chatContainer.innerHTML = ''; 
+                    }, 1200);
+
+                } catch (err) {
+                    document.body.classList.remove('shake-active');
+                    overlay.classList.add('opacity-0', 'pointer-events-none');
+                    setTimeout(() => overlay.classList.add('hidden'), 500);
+                    await uiAlert("خطأ", "حدث خطأ أثناء حرق البيانات: " + err.message, "error");
+                }
+            }
+        }, 120); 
+    };
+
+    window.deleteAccount = async function() {
+       const isConfirmed = await uiConfirm("تسجيل الخروج", "هل تريد حقاً تسجيل الخروج ومسح بياناتك من هذا الجهاز؟", true);
+       if(!isConfirmed) return;
+       clearSessionData(); 
        location.reload();
     };
 
@@ -340,49 +728,74 @@
              img.src = e.target.result;
              img.onload = function() {
                 const canvas = document.createElement('canvas');
-                const MAX_WIDTH = 200;
-                const MAX_HEIGHT = 200;
+                const MAX_SIZE = 72; 
                 let width = img.width;
                 let height = img.height;
 
                 if (width > height) {
-                   if (width > MAX_WIDTH) { height *= MAX_WIDTH / width; width = MAX_WIDTH; }
+                   if (width > MAX_SIZE) { height *= MAX_SIZE / width; width = MAX_SIZE; }
                 } else {
-                   if (height > MAX_HEIGHT) { width *= MAX_HEIGHT / height; height = MAX_HEIGHT; }
+                   if (height > MAX_SIZE) { width *= MAX_SIZE / height; height = MAX_SIZE; }
                 }
 
                 canvas.width = width;
                 canvas.height = height;
                 const ctx = canvas.getContext('2d');
                 ctx.drawImage(img, 0, 0, width, height);
-                selectedImageBase64 = canvas.toDataURL('image/jpeg', 0.7);
+                selectedImageBase64 = canvas.toDataURL('image/jpeg', 0.5); 
              }
           };
           reader.readAsDataURL(file);
        }
     };
 
-    window.saveProfile = function() {
+    window.saveProfile = async function() {
+       const saveBtn = document.getElementById('save-profile-btn');
+       const skipBtn = document.getElementById('skip-profile-btn');
+       const originalBtnText = saveBtn.innerHTML;
+
        let name = document.getElementById('reg-name').value.trim() || 'طالب مجتهد';
        let code = document.getElementById('reg-code').value.trim();
        
        let role = 'user';
-       if(code === 'MGR-777') role = 'manager';
-       else if(code === 'DEV-999') role = 'developer';
-       else if(code.startsWith('MOD-1') && parseInt(code.split('-')[1]) <= 110) role = 'moderator';
+       let pic = selectedImageBase64 || defaultImages['user'];
 
-       let pic = selectedImageBase64 || defaultImages[role];
+       try {
+           saveBtn.disabled = true;
+           skipBtn.disabled = true;
+           saveBtn.classList.add('opacity-70', 'cursor-not-allowed');
+           saveBtn.innerHTML = `<div class="w-4 h-4 border-2 border-slate-900 border-t-transparent rounded-full animate-spin"></div> جاري التحقق...`;
 
-       currentUser = {
-         id: 'user_' + Date.now() + Math.random().toString(36).substr(2,9),
-         name: name,
-         pic: pic,
-         role: role
-       };
+           if(code !== '') {
+               const codeRef = ref(db, 'secret_roles/' + code);
+               const snapshot = await get(codeRef);
 
-       localStorage.setItem('munqidh_user_data', JSON.stringify(currentUser));
-       document.getElementById('login-modal').classList.add('hidden');
-       setupPresence();
+               if(snapshot.exists()) {
+                   role = snapshot.val(); 
+                   pic = selectedImageBase64 || defaultImages[role];
+               } else {
+                   await uiAlert("تنبيه", "الكود غير صحيح، سيتم الدخول كطالب زائر.", "warning");
+               }
+           }
+
+           currentUser = {
+             id: 'user_' + Date.now() + Math.random().toString(36).substr(2,9),
+             name: name,
+             pic: pic,
+             role: role
+           };
+
+           saveSessionData(currentUser); 
+           document.getElementById('login-modal').classList.add('hidden');
+           setupPresence();
+
+       } catch (error) {
+           await uiAlert("خطأ في الاتصال", "حدث خطأ أثناء الاتصال بقاعدة البيانات. تأكد من جودة الإنترنت وحاول مجدداً.", "error");
+           saveBtn.disabled = false;
+           skipBtn.disabled = false;
+           saveBtn.classList.remove('opacity-70', 'cursor-not-allowed');
+           saveBtn.innerHTML = originalBtnText;
+       }
     }
 
     window.skipProfile = function() {
@@ -392,7 +805,7 @@
          pic: defaultImages.user,
          role: 'user'
        };
-       localStorage.setItem('munqidh_user_data', JSON.stringify(currentUser));
+       saveSessionData(currentUser);
        document.getElementById('login-modal').classList.add('hidden');
        setupPresence();
     }
@@ -418,28 +831,25 @@
     const chatInput = document.getElementById('chat-input');
     
     chatInput.addEventListener('input', () => {
-       if (!currentUser || chatInput.value.trim() === '') return;
+       if (!currentUser || chatInput.value.trim() === '') {
+           if(isTypingSent) { set(ref(db, `munqidh_typing_status/${currentUser.id}`), null); isTypingSent = false; }
+           return;
+       }
        
-       const myTypingRef = ref(db, `munqidh_typing_status/${currentUser.id}`);
-       set(myTypingRef, {
-           name: currentUser.name,
-           pic: currentUser.pic,
-           typing: true
-       });
-       onDisconnect(myTypingRef).remove(); // مسح حالة الكتابة تلقائياً عند قطع الاتصال أو الخروج
+       if (!isTypingSent) {
+           set(ref(db, `munqidh_typing_status/${currentUser.id}`), { name: currentUser.name, pic: currentUser.pic, typing: true });
+           isTypingSent = true;
+       }
 
        if (typingTimeout) clearTimeout(typingTimeout);
-
        typingTimeout = setTimeout(() => {
-           set(myTypingRef, null);
+           set(ref(db, `munqidh_typing_status/${currentUser.id}`), null);
+           isTypingSent = false;
        }, 1500);
     });
 
-    // مسح حالة الكتابة عند مغادرة الصفحة أو إغلاق التطبيق
     window.addEventListener('beforeunload', () => {
-       if (currentUser) {
-          set(ref(db, `munqidh_typing_status/${currentUser.id}`), null);
-       }
+       if (currentUser) set(ref(db, `munqidh_typing_status/${currentUser.id}`), null);
     });
 
     onValue(typingRef, (snapshot) => {
@@ -457,45 +867,39 @@
 
         if (typists.length > 0) {
             avatarsDiv.innerHTML = typists.slice(0, 3).map(t => 
-                `<img src="${t.pic}" class="w-[22px] h-[22px] rounded-full border-[1.5px] border-slate-900 object-cover shadow-sm" />`
+                `<img src="${t.pic}" class="w-[20px] h-[20px] rounded-full border-[1.5px] border-slate-800 object-cover shadow-sm" />`
             ).join('');
             
             let text = '';
             if (typists.length === 1) text = `${typists[0].name.split(' ')[0]} يكتب`;
             else if (typists.length === 2) text = `${typists[0].name.split(' ')[0]} و ${typists[1].name.split(' ')[0]} يكتبان`;
-            else text = `${typists[0].name.split(' ')[0]} و ${typists.length - 1} آخرين يكتبون`;
+            else text = `${typists[0].name.split(' ')[0]} و ${typists.length - 1} آخرين`;
             
             textSpan.innerText = text;
             
-            indicator.classList.remove('opacity-0', 'translate-y-4');
-            indicator.classList.add('opacity-100', 'translate-y-0');
+            indicator.classList.remove('translate-y-4', 'opacity-0');
+            indicator.classList.add('translate-y-0', 'opacity-100');
         } else {
-            indicator.classList.remove('opacity-100', 'translate-y-0');
-            indicator.classList.add('opacity-0', 'translate-y-4');
+            indicator.classList.remove('translate-y-0', 'opacity-100');
+            indicator.classList.add('translate-y-4', 'opacity-0');
         }
     });
 
     const sndSend = new Audio('https://assets.mixkit.co/active_storage/sfx/2354/2354-preview.mp3');
     const sndRecv = new Audio('https://assets.mixkit.co/active_storage/sfx/2354/2354-preview.mp3');
     const sndReply = new Audio('https://assets.mixkit.co/active_storage/sfx/2869/2869-preview.mp3');
-    
-    sndSend.preload = "auto";
-    sndRecv.preload = "auto";
-    sndReply.preload = "auto";
+    sndSend.preload = "auto"; sndRecv.preload = "auto"; sndReply.preload = "auto";
 
     function playSoundSafe(audioElement) {
         if (!audioElement) return;
         audioElement.currentTime = 0;
         let playPromise = audioElement.play();
-        if (playPromise !== undefined) {
-            playPromise.catch(error => { console.log("تم حظر التشغيل التلقائي للصوت:", error); });
-        }
+        if (playPromise !== undefined) playPromise.catch(error => { console.log("Blocked:", error); });
     }
 
     let replyingTo = null;
     let unseenReplies = [];
     const initialLoadTime = Date.now();
-
     const chatContainer = document.getElementById('chat-messages');
     const scrollBtn = document.getElementById('scroll-bottom-btn');
 
@@ -509,7 +913,118 @@
        chatContainer.scrollTo({ top: chatContainer.scrollHeight, behavior: 'smooth' });
     }
 
+    // ================= نظام التفاعلات والديناميكية =================
+    let activeReactionMsgId = null;
+
+    window.showReactionPicker = function(msgId) {
+        activeReactionMsgId = msgId;
+        const picker = document.getElementById('reaction-picker');
+        const box = document.getElementById('reaction-picker-box');
+        picker.classList.remove('hidden');
+        picker.style.display = 'flex';
+        setTimeout(() => box.classList.remove('scale-95'), 10);
+    };
+
+    window.closeReactionPicker = function() {
+        const picker = document.getElementById('reaction-picker');
+        const box = document.getElementById('reaction-picker-box');
+        box.classList.add('scale-95');
+        setTimeout(() => { picker.classList.add('hidden'); picker.style.display = 'none'; }, 200);
+    };
+
+    function animateEmojiFly(emojiUrl, startX, startY, msgId) {
+        const flyingEmoji = document.createElement('img');
+        flyingEmoji.src = emojiUrl;
+        flyingEmoji.className = 'fixed z-[300] w-8 h-8 object-contain pointer-events-none drop-shadow-2xl';
+        flyingEmoji.style.left = `${startX - 16}px`;
+        flyingEmoji.style.top = `${startY - 16}px`;
+        document.body.appendChild(flyingEmoji);
+
+        const msgWrapper = document.querySelector(`.message-wrapper[data-id="${msgId}"] .bubble-content`);
+        let endX = startX;
+        let endY = startY + 200;
+        
+        if (msgWrapper) {
+            const msgRect = msgWrapper.getBoundingClientRect();
+            const reactionsBox = document.getElementById(`msg-reactions-${msgId}`);
+            if(reactionsBox && reactionsBox.children.length > 0) {
+               const rRect = reactionsBox.getBoundingClientRect();
+               endX = rRect.left + 20;
+               endY = rRect.top;
+            } else {
+               endX = msgRect.left + (msgRect.width / 2);
+               endY = msgRect.bottom - 10;
+            }
+        }
+
+        const deltaX = endX - startX;
+        const deltaY = endY - startY;
+
+        const animation = flyingEmoji.animate([
+            { transform: 'translate(0, 0) scale(1)', opacity: 1 },
+            { transform: `translate(${deltaX * 0.3}px, -40px) scale(1.3)`, opacity: 1 }, 
+            { transform: `translate(${deltaX}px, ${deltaY}px) scale(0.5)`, opacity: 0 } 
+        ], {
+            duration: 800,
+            easing: 'cubic-bezier(0.25, 1, 0.5, 1)',
+            fill: 'forwards'
+        });
+
+        animation.onfinish = () => flyingEmoji.remove();
+    }
+
+    window.pickReaction = function(emoji, event) {
+        if(activeReactionMsgId) {
+            const rect = event.currentTarget.getBoundingClientRect();
+            const startX = rect.left + rect.width / 2;
+            const startY = rect.top + rect.height / 2;
+            
+            animateEmojiFly(iosEmojis[emoji], startX, startY, activeReactionMsgId);
+            toggleReaction(activeReactionMsgId, emoji);
+        }
+        closeReactionPicker();
+    };
+
+    window.toggleReaction = async function(msgId, emoji) {
+        if (!currentUser) return;
+        const msgRef = ref(db, `munqidh_live_chat_v3/${msgId}/reactions/${emoji}/${currentUser.id}`);
+        const snap = await get(msgRef);
+        if (snap.exists()) {
+            remove(msgRef); 
+        } else {
+            set(msgRef, true); 
+        }
+    };
+
+    function buildReactionsHtml(data) {
+        if(!data.reactions) return '';
+        let html = '<div class="flex flex-wrap gap-1 mt-1.5">';
+        for(let emoji in data.reactions) {
+            let users = Object.keys(data.reactions[emoji]);
+            let count = users.length;
+            let iReacted = currentUser && users.includes(currentUser.id);
+            if(count > 0) {
+                let bgClass = iReacted ? 'bg-amber-500/20 border-amber-500/50 text-amber-400' : 'bg-slate-800/80 border-slate-700/80 text-slate-300';
+                let emojiImage = iosEmojis[emoji] ? `<img src="${iosEmojis[emoji]}" class="w-3.5 h-3.5 object-contain" />` : emoji;
+                
+                html += `<button onclick="toggleReaction('${data.id}', '${emoji}')" class="px-2 py-0.5 rounded-full border ${bgClass} flex items-center gap-1.5 hover:bg-slate-700 transition active:scale-90 shadow-sm">${emojiImage} <span class="font-bold text-[10px] mt-0.5">${count}</span></button>`;
+            }
+        }
+        html += '</div>';
+        return html;
+    }
+
+    function showFloatingHeart(element) {
+        const heart = document.createElement('div');
+        heart.innerHTML = `<img src="${iosEmojis['❤️']}" class="w-12 h-12 object-contain" />`;
+        heart.className = 'absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 animate-pop-heart z-20 pointer-events-none drop-shadow-2xl';
+        element.appendChild(heart);
+        setTimeout(() => heart.remove(), 1800);
+    }
+    // ==============================================================
+
     onChildAdded(recentChatsQuery, (snapshot) => {
+      hideLoaderQuickly(); 
       const data = snapshot.val();
       data.id = snapshot.key;
       appendMessageToUI(data);
@@ -530,17 +1045,25 @@
 
     onChildChanged(chatRef, (snapshot) => {
        const data = snapshot.val();
-       const el = document.getElementById(`msg-text-${snapshot.key}`);
-       if(el) {
-          el.innerText = data.text;
-          const editedTag = document.getElementById(`msg-edited-${snapshot.key}`);
+       data.id = snapshot.key;
+       
+       const textEl = document.getElementById(`msg-text-${data.id}`);
+       if(textEl) textEl.innerText = data.text;
+       
+       if(data.edited && textEl) {
+          const editedTag = document.getElementById(`msg-edited-${data.id}`);
           if(!editedTag) {
              const tag = document.createElement('span');
-             tag.id = `msg-edited-${snapshot.key}`;
+             tag.id = `msg-edited-${data.id}`;
              tag.className = 'text-[9px] text-slate-500 mr-2';
              tag.innerText = '(معدل)';
-             el.parentNode.appendChild(tag);
+             document.getElementById(`msg-meta-${data.id}`).appendChild(tag);
           }
+       }
+
+       const reactionsContainer = document.getElementById(`msg-reactions-${data.id}`);
+       if (reactionsContainer) {
+           reactionsContainer.innerHTML = buildReactionsHtml(data);
        }
     });
 
@@ -574,6 +1097,7 @@
       });
 
       set(ref(db, `munqidh_typing_status/${currentUser.id}`), null);
+      isTypingSent = false;
       if (typingTimeout) clearTimeout(typingTimeout);
 
       input.value = '';
@@ -581,25 +1105,69 @@
     };
 
     function appendMessageToUI(data) {
-      const timeStr = new Date(data.timestamp || Date.now()).toLocaleTimeString('ar-IQ', { hour: '2-digit', minute: '2-digit' });
+      const msgDate = new Date(data.timestamp || Date.now());
+      const timeStr = msgDate.toLocaleTimeString('ar-IQ', { hour: '2-digit', minute: '2-digit' });
+      const dateStr = msgDate.toLocaleDateString('ar-IQ', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
       const isMe = data.userId === currentUser?.id;
       const hasModPower = ['manager', 'developer', 'moderator'].includes(currentUser?.role);
-      
+
+      // 1. منطق تجميع الرسائل وفواصل الأيام
+      let isGrouped = false;
+      let showDateSeparator = false;
+
+      if (!lastMsgTracker) {
+          showDateSeparator = true;
+      } else {
+          const lastDate = new Date(lastMsgTracker.timestamp);
+          if (msgDate.toDateString() !== lastDate.toDateString()) {
+              showDateSeparator = true;
+          } else if (lastMsgTracker.userId === data.userId && (data.timestamp - lastMsgTracker.timestamp < 5 * 60 * 1000)) { 
+              isGrouped = true;
+          }
+      }
+
+      // إضافة فاصل الأيام العائم
+      if (showDateSeparator) {
+          const sep = document.createElement('div');
+          sep.className = 'flex justify-center my-4 w-full shrink-0 z-10';
+          sep.innerHTML = `<span class="bg-slate-800/40 backdrop-blur-md text-slate-300 text-[10px] font-bold px-4 py-1.5 rounded-full border border-slate-700/50 shadow-sm">${dateStr}</span>`;
+          chatContainer.appendChild(sep);
+      }
+
+      // 2. ذيول الفقاعات الديناميكية
+      if (isGrouped) {
+          const prevBubble = document.querySelector(`.message-wrapper[data-id="${lastMsgTracker.id}"] .bubble-content`);
+          if (prevBubble) {
+              prevBubble.classList.remove('rounded-tl-none', 'rounded-tr-none');
+              prevBubble.classList.add('rounded-2xl'); 
+          }
+      }
+
+      // 3. تأثير الزجاج (Glassmorphism)
       const roleStyles = {
-        manager: { bg: 'bg-gradient-to-br from-amber-500/20 to-yellow-600/20', border: 'border-amber-500/50', name: 'text-amber-400', badge: '👑 مدير' },
-        developer: { bg: 'bg-gradient-to-br from-cyan-500/20 to-blue-600/20', border: 'border-cyan-500/50', name: 'text-cyan-400', badge: '💻 مطور' },
-        moderator: { bg: 'bg-gradient-to-br from-purple-500/20 to-fuchsia-600/20', border: 'border-purple-500/50', name: 'text-purple-400', badge: '🛡️ مشرف' },
-        user: { bg: isMe ? 'bg-emerald-500/10' : 'bg-slate-800/60', border: isMe ? 'border-emerald-500/30' : 'border-slate-700', name: isMe ? 'text-emerald-400' : 'text-slate-300', badge: '' }
+        manager: { bg: 'bg-amber-500/10 backdrop-blur-md', border: 'border-amber-500/30', name: 'text-amber-400', badge: '👑 مدير' },
+        developer: { bg: 'bg-cyan-500/10 backdrop-blur-md', border: 'border-cyan-500/30', name: 'text-cyan-400', badge: '💻 مطور' },
+        moderator: { bg: 'bg-purple-500/10 backdrop-blur-md', border: 'border-purple-500/30', name: 'text-purple-400', badge: '🛡️ مشرف' },
+        user: { bg: isMe ? 'bg-emerald-500/15 backdrop-blur-md' : 'bg-slate-800/40 backdrop-blur-md', border: isMe ? 'border-emerald-500/30' : 'border-slate-700/50', name: isMe ? 'text-emerald-400' : 'text-slate-300', badge: '' }
       };
-
       const style = roleStyles[data.role] || roleStyles['user'];
-      const editedHTML = data.edited ? `<span id="msg-edited-${data.id}" class="text-[9px] text-slate-500 mr-2">(معدل)</span>` : '';
 
+      // 4. معاينة المرفقات (الروابط والصور)
+      const urlRegex = /(https?:\/\/[^\s]+)/g;
+      let formattedText = escapeHtml(data.text).replace(urlRegex, (url) => {
+          if(url.match(/\.(jpeg|jpg|gif|png|webp)($|\?)/i)) { 
+              return `<a href="${url}" target="_blank"><img src="${url}" class="w-full max-w-[220px] rounded-xl mt-2 border border-slate-700/50 shadow-sm hover:opacity-80 transition object-cover" loading="lazy" /></a>`;
+          }
+          return `<a href="${url}" target="_blank" class="text-blue-400 underline hover:text-blue-300 break-all text-xs inline-flex items-center gap-1 mx-1"><i data-lucide="link" class="w-3 h-3"></i>رابط</a>`;
+      });
+
+      const editedHTML = data.edited ? `<span id="msg-edited-${data.id}" class="text-[9px] text-slate-500 mr-1">(معدل)</span>` : '';
+      
       let actionButtons = '';
       if(isMe || hasModPower) {
-        let editBtn = isMe ? `<button onclick="editMessage('${data.id}', \`${escapeHtml(data.text)}\`)" class="text-slate-500 hover:text-blue-400"><i data-lucide="edit-2" class="w-3.5 h-3.5"></i></button>` : '';
-        let delBtn = `<button onclick="deleteMessage('${data.id}')" class="text-slate-500 hover:text-red-400"><i data-lucide="trash-2" class="w-3.5 h-3.5"></i></button>`;
-        actionButtons = `<div class="flex gap-2 items-center opacity-0 group-hover:opacity-100 transition">${editBtn}${delBtn}</div>`;
+        let editBtn = isMe ? `<button onclick="editMessage('${data.id}', \`${escapeHtml(data.text)}\`)" class="text-slate-400 hover:text-blue-400 p-1 transition" title="تعديل"><i data-lucide="edit-2" class="w-3.5 h-3.5"></i></button>` : '';
+        let delBtn = `<button onclick="deleteMessage('${data.id}')" class="text-slate-400 hover:text-red-400 p-1 transition" title="حذف"><i data-lucide="trash-2" class="w-3.5 h-3.5"></i></button>`;
+        actionButtons = `<div class="flex gap-1 items-center opacity-0 group-hover:opacity-100 transition-opacity duration-200">${editBtn}${delBtn}</div>`;
       }
 
       let replyHTML = '';
@@ -613,23 +1181,41 @@
       }
 
       const wrapper = document.createElement('div');
-      wrapper.className = `message-wrapper flex items-start gap-2 msg-animate w-full group ${isMe ? 'flex-row-reverse' : ''}`;
+      wrapper.className = `message-wrapper flex items-start gap-2 msg-animate w-full group ${isMe ? 'flex-row-reverse' : ''} ${isGrouped ? 'mt-1' : 'mt-3'}`;
       wrapper.dataset.id = data.id;
 
+      const avatarHTML = isGrouped ? `<div class="w-7 shrink-0"></div>` : `<img src="${data.pic}" onclick="showProfile('${data.pic}', '${escapeHtml(data.sender)}', '${style.badge || 'طالب'}')" class="w-7 h-7 rounded-full object-cover border border-slate-700 cursor-pointer shrink-0 mt-1 shadow-sm active:scale-90 transition" />`;
+      
+      const nameHTML = isGrouped ? '' : `
+        <div class="flex items-center justify-between gap-2 mb-1 pointer-events-none">
+          <span class="font-extrabold ${style.name} text-[11px] flex items-center gap-1">
+            ${escapeHtml(data.sender)} 
+            ${style.badge ? `<span class="text-[9px] bg-slate-950/50 px-1 py-0.5 rounded-full">${style.badge}</span>` : ''}
+          </span>
+        </div>`;
+
+      const tailClass = isMe ? 'rounded-tl-none' : 'rounded-tr-none';
+      
+      // 5. مؤشرات القراءة
+      const readReceipt = isMe ? `<i data-lucide="check-check" class="w-3.5 h-3.5 text-emerald-400 shrink-0"></i>` : '';
+
       const bubbleHTML = `
-        <img src="${data.pic}" onclick="showProfile('${data.pic}', '${escapeHtml(data.sender)}', '${style.badge || 'طالب'}')" class="w-7 h-7 rounded-full object-cover border border-slate-700 cursor-pointer shrink-0 mt-1 shadow-sm active:scale-90 transition" />
+        ${avatarHTML}
         <div class="flex flex-col ${isMe ? 'items-end' : 'items-start'} max-w-[75%] min-w-0">
-          <div class="bubble-content ${style.bg} ${style.border} border rounded-2xl p-2.5 shadow-sm cursor-pointer select-none relative reply-swipe-anim transition-all ${isMe ? 'rounded-tl-none' : 'rounded-tr-none'} w-full min-w-[120px] max-w-full overflow-hidden">
+          <div class="bubble-content ${style.bg} ${style.border} border rounded-2xl ${tailClass} p-2.5 shadow-sm select-none relative transition-all duration-300 w-full min-w-[120px] max-w-full overflow-hidden">
             ${replyHTML}
-            <div class="flex items-center justify-between gap-2 mb-1">
-              <span class="font-extrabold ${style.name} text-[11px] flex items-center gap-1">
-                ${escapeHtml(data.sender)} 
-                ${style.badge ? `<span class="text-[9px] bg-slate-950/50 px-1 py-0.5 rounded-full">${style.badge}</span>` : ''}
-              </span>
+            ${nameHTML}
+            <p id="msg-text-${data.id}" class="text-slate-100 text-xs leading-relaxed break-words whitespace-pre-wrap w-full max-w-full pointer-events-auto">${formattedText}</p>
+            
+            <div id="msg-reactions-${data.id}">
+                ${buildReactionsHtml(data)}
             </div>
-            <p id="msg-text-${data.id}" class="text-slate-100 text-xs leading-relaxed break-words whitespace-pre-wrap w-full max-w-full overflow-hidden">${escapeHtml(data.text)}</p>
+
             <div class="flex items-center justify-between mt-2 gap-3">
-               <span class="text-[9px] text-slate-500 shrink-0" dir="ltr">${timeStr}${editedHTML}</span>
+               <div class="flex items-center gap-1">
+                   <span id="msg-meta-${data.id}" class="text-[9px] text-slate-400 shrink-0 flex items-center" dir="ltr">${timeStr}${editedHTML}</span>
+                   ${readReceipt}
+               </div>
                ${actionButtons}
             </div>
           </div>
@@ -638,46 +1224,109 @@
 
       wrapper.innerHTML = bubbleHTML;
       chatContainer.appendChild(wrapper);
+      
+      lastMsgTracker = data; 
 
       const isAtBottom = chatContainer.scrollHeight - chatContainer.scrollTop - chatContainer.clientHeight < 150;
       if (isAtBottom || isMe) chatContainer.scrollTop = chatContainer.scrollHeight;
 
       setupTouchGestures(wrapper.querySelector('.bubble-content'), data);
-      
-      if (window.lucide) {
-          lucide.createIcons({ root: wrapper });
-      }
+      if (window.lucide) lucide.createIcons({ root: wrapper });
     }
 
-    window.deleteMessage = function(id) {
-       if(confirm('هل أنت متأكد من حذف هذه الرسالة؟')) remove(ref(db, `munqidh_live_chat_v3/${id}`));
+    // دوال الحذف والتعديل المربوطة بالنوافذ المخصصة
+    window.deleteMessage = async function(id) {
+       const isConfirmed = await uiConfirm("تأكيد الحذف", "هل أنت متأكد من حذف هذه الرسالة بشكل نهائي؟", true);
+       if(isConfirmed) {
+           remove(ref(db, `munqidh_live_chat_v3/${id}`));
+       }
     };
 
-    window.editMessage = function(id, oldText) {
-       const newText = prompt('تعديل الرسالة:', oldText);
+    window.editMessage = async function(id, oldText) {
+       const newText = await uiPrompt("تعديل الرسالة", oldText);
        if(newText !== null && newText.trim() !== '' && newText !== oldText) {
           update(ref(db, `munqidh_live_chat_v3/${id}`), { text: newText.trim(), edited: true });
        }
     };
 
     function setupTouchGestures(element, data) {
-      let startX = 0, startY = 0, pressTimer;
+      let startX = 0, startY = 0, currentX = 0;
+      let pressTimer;
+      let isDragging = false;
+      let lastTap = 0;
       
       element.addEventListener('touchstart', (e) => {
-        startX = e.touches[0].clientX; startY = e.touches[0].clientY;
+        startX = e.touches[0].clientX; 
+        startY = e.touches[0].clientY;
         element.style.transform = 'scale(0.98)';
-        pressTimer = setTimeout(() => { triggerReply(data); if(navigator.vibrate) navigator.vibrate(50); element.style.transform = 'scale(1)'; }, 500); 
+        
+        pressTimer = setTimeout(() => { 
+            if(!isDragging) {
+                if(navigator.vibrate) navigator.vibrate(50); 
+                element.style.transform = 'scale(1)'; 
+                showReactionPicker(data.id);
+            }
+        }, 500); 
       }, {passive: true});
 
       element.addEventListener('touchmove', (e) => {
-        let diffX = startX - e.touches[0].clientX; let diffY = Math.abs(startY - e.touches[0].clientY);
-        if(Math.abs(diffX) > 10 || diffY > 10) { clearTimeout(pressTimer); element.style.transform = 'scale(1)'; }
-        if (diffX > 50 && diffY < 30) { clearTimeout(pressTimer); triggerReply(data); if(navigator.vibrate) navigator.vibrate(50); startX = e.touches[0].clientX; element.style.transform = 'scale(1)'; }
+        let diffX = startX - e.touches[0].clientX; 
+        let diffY = Math.abs(startY - e.touches[0].clientY);
+        
+        if(Math.abs(diffX) > 10 || diffY > 10) { 
+            clearTimeout(pressTimer); 
+            element.style.transform = 'scale(1)'; 
+        }
+        
+        if (diffX > 10 && diffY < 30) { 
+            isDragging = true;
+            clearTimeout(pressTimer); 
+            let move = Math.min(diffX, 120); 
+            element.style.transform = `translateX(-${move}px)`; 
+        }
       }, {passive: true});
 
-      element.addEventListener('touchend', () => { clearTimeout(pressTimer); element.style.transform = 'scale(1)'; });
+      element.addEventListener('touchend', (e) => { 
+          clearTimeout(pressTimer); 
+          element.style.transform = 'scale(1)'; 
+          
+          if (isDragging) {
+              element.style.transition = 'transform 0.2s cubic-bezier(0.16, 1, 0.3, 1)';
+              element.style.transform = `translateX(0)`;
+              let diffX = startX - e.changedTouches[0].clientX;
+              if (diffX > 100) { 
+                 triggerReply(data);
+                 if(navigator.vibrate) navigator.vibrate(50);
+              }
+              isDragging = false;
+              setTimeout(() => element.style.transition = '', 200);
+          } else {
+              let currentTime = new Date().getTime();
+              let tapLength = currentTime - lastTap;
+              if (tapLength < 300 && tapLength > 0) {
+                  showFloatingHeart(element);
+                  toggleReaction(data.id, '❤️');
+                  if(navigator.vibrate) navigator.vibrate(50);
+                  e.preventDefault();
+              }
+              lastTap = currentTime;
+          }
+      });
       element.addEventListener('touchcancel', () => { clearTimeout(pressTimer); element.style.transform = 'scale(1)'; });
-      element.addEventListener('dblclick', () => triggerReply(data));
+      
+      element.addEventListener('dblclick', () => {
+          showFloatingHeart(element);
+          toggleReaction(data.id, '❤️');
+      });
+      
+      element.addEventListener('mousedown', (e) => {
+         if(e.button !== 0) return;
+         pressTimer = setTimeout(() => { 
+            showReactionPicker(data.id);
+         }, 500);
+      });
+      element.addEventListener('mouseup', () => clearTimeout(pressTimer));
+      element.addEventListener('mouseleave', () => clearTimeout(pressTimer));
     }
 
     function triggerReply(data) {
@@ -697,8 +1346,8 @@
        if (el) {
           el.scrollIntoView({ behavior: 'smooth', block: 'center' });
           const bubble = el.querySelector('.bubble-content');
-          bubble.classList.add('bg-white/20', 'ring-2', 'ring-white');
-          setTimeout(() => bubble.classList.remove('bg-white/20', 'ring-2', 'ring-white'), 1500);
+          bubble.classList.add('ring-2', 'ring-amber-500', 'brightness-125');
+          setTimeout(() => bubble.classList.remove('ring-2', 'ring-amber-500', 'brightness-125'), 1500);
        }
     };
 
